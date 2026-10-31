@@ -1,25 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-
-  --primary: #1a1a1a;
+  --background: #f6f7fa;
+  --foreground: #0a1640;
+  --surface: #ffffff;
+  --navy: #0a1640;
+  --navy-deep: #060d2b;
+  --primary: #0a2cf0;
   --primary-foreground: #ffffff;
-  --secondary: #4a4a4a;
-  --accent: #f4f4f5;
+  --cyan: #2dd4e0;
+  --muted: #55608a;
+  --line: #d8deec;
+  --success: #0b8a5f;
+  --danger: #c2263d;
+
+  --level-1: #2dd4e0;
+  --level-2: #1e90ff;
+  --level-3: #0a2cf0;
+  --level-4: #0a1640;
+
+  --ring: var(--primary);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
+  --color-cyan: var(--cyan);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-level-1: var(--level-1);
+  --color-level-2: var(--level-2);
+  --color-level-3: var(--level-3);
+  --color-level-4: var(--level-4);
 
   --font-heading: var(--font-heading-face);
   --font-body: var(--font-body-face);
+  --font-accent: var(--font-accent-face);
 }
 
 html {
@@ -31,6 +54,15 @@ body {
   color: var(--foreground);
 }
 
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.surface-dark {
+  --ring: var(--cyan);
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -39,9 +71,9 @@ body {
 .img-shimmer {
   background: linear-gradient(
     90deg,
-    var(--accent) 0%,
-    color-mix(in srgb, var(--accent), var(--foreground) 6%) 40%,
-    var(--accent) 80%
+    var(--line) 0%,
+    color-mix(in srgb, var(--line), var(--foreground) 6%) 40%,
+    var(--line) 80%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;

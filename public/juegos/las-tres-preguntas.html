@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Las Tres Preguntas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: una consola de clasificación — tarjeta del caso arriba, matriz 2×2 (cuerpo × cómo decide) como tablero central */
+:root{
+  --bg:#0a1430; --panel:#12214a; --panel2:#1a2c5c; --line:#2a3f78;
+  --fg:#eaf0ff; --muted:#9db0dc;
+  --robot:#ffb547; --rules:#4fc3ff; --ai:#c58bff;
+  --good:#5be37a; --bad:#ff6b7a;
+  --display:"Fredoka",system-ui,sans-serif; --body:"Nunito",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
+  background-image:radial-gradient(circle at 20% -10%,#1b3270 0,transparent 45%),radial-gradient(circle at 110% 100%,#2a1a5c 0,transparent 40%);background-attachment:fixed}
+.wrap{max-width:1040px;margin:0 auto;padding-block:18px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;font-weight:600}
+button{font-family:var(--body);cursor:pointer}
+button:focus-visible{outline:3px solid var(--rules);outline-offset:2px}
+.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.brand{font-family:var(--display);font-weight:700;font-size:1.25rem;letter-spacing:.3px;margin-right:auto}
+.brand span{color:var(--robot)}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip b{color:var(--robot)}
+.iconbtn{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:5px 12px;font-weight:700;font-size:.9rem}
+.iconbtn:hover{background:var(--panel2)}
+.progress{height:6px;background:var(--panel);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rules),var(--ai));transition:width .4s}
+
+/* start */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding-block:20px}
+.hero h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02}
+.hero h1 em{font-style:normal;color:var(--robot)}
+.hero p{color:var(--muted);max-width:52ch;font-size:1.05rem}
+.qlist{display:grid;gap:10px;margin:18px 0}
+.q{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.q .tag{font-family:var(--display);font-weight:600;font-size:.8rem;border-radius:8px;padding:3px 8px;color:#0a1430;white-space:nowrap}
+.q p{margin:0;color:var(--fg);font-size:.98rem}
+.q small{display:block;color:var(--muted);font-weight:700;margin-top:2px}
+.modes{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn{border:0;border-radius:14px;padding:13px 20px;font-weight:800;font-size:1rem;color:#0a1430;background:var(--robot);box-shadow:0 4px 0 #b97a1c;transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #b97a1c}
+.btn.alt{background:var(--panel2);color:var(--fg);box-shadow:0 4px 0 #0c1736;border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* matrix */
+.matrix{display:grid;grid-template-columns:auto 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:6px}
+.mx-h{font-family:var(--display);font-size:.8rem;font-weight:600;color:var(--muted);text-align:center;padding:4px;display:flex;align-items:center;justify-content:center;line-height:1.15}
+.mx-h.col1{color:var(--rules)} .mx-h.col2{color:var(--ai)}
+.mx-h.row{writing-mode:vertical-rl;transform:rotate(180deg);padding:6px 2px}
+.mx-h.row1{color:var(--robot)}
+.cell{position:relative;border-radius:14px;border:2px dashed var(--line);background:rgba(18,33,74,.6);padding:10px;min-height:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-family:var(--display);font-weight:600;font-size:.95rem;transition:all .2s}
+button.cell:hover{border-color:var(--muted);color:var(--fg)}
+.cell .sub{font-family:var(--body);font-size:.75rem;font-weight:700;opacity:.8}
+.cell.sel{border-style:solid;color:#0a1430}
+.cell[data-c="RA"].sel{background:linear-gradient(135deg,var(--robot),var(--rules));border-color:var(--robot)}
+.cell[data-c="RI"].sel{background:linear-gradient(135deg,var(--robot),var(--ai));border-color:var(--robot)}
+.cell[data-c="NA"].sel{background:var(--rules);border-color:var(--rules)}
+.cell[data-c="NI"].sel{background:var(--ai);border-color:var(--ai)}
+.cell.right{box-shadow:0 0 0 3px var(--good),0 0 22px rgba(91,227,122,.45)}
+.cell.wrong{box-shadow:0 0 0 3px var(--bad)}
+
+/* play */
+.play{display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:start}
+.case{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;animation:pop .35s ease}
+@keyframes pop{from{transform:translateY(8px);opacity:.3}to{transform:none;opacity:1}}
+.case .num{font-size:.8rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.case .head{display:flex;gap:14px;align-items:center;margin:8px 0 10px}
+.case .emo{font-size:3rem;line-height:1;width:72px;height:72px;display:grid;place-items:center;background:var(--panel2);border-radius:18px;flex:none}
+.case h2{font-size:1.6rem}
+.case .desc{font-size:1.08rem;margin:0}
+.polemico{display:inline-block;margin-top:8px;background:rgba(255,181,71,.15);color:var(--robot);border:1px solid var(--robot);border-radius:8px;padding:2px 8px;font-size:.8rem;font-weight:800}
+.ask{margin-top:16px;display:grid;gap:14px}
+.ask h3{font-size:1rem;margin-bottom:8px}
+.ask h3 .k{display:inline-block;color:#0a1430;border-radius:6px;padding:0 7px;margin-right:6px;font-size:.85rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{background:var(--panel2);border:2px solid var(--line);color:var(--fg);border-radius:12px;padding:10px 12px;text-align:left;font-weight:700;font-size:.93rem;line-height:1.25}
+.opt:hover{border-color:var(--muted)}
+.opt.on{border-color:var(--fg);background:#24397a}
+.opt[data-q="b"].on{border-color:var(--robot)}
+.opt[data-v="rules"].on{border-color:var(--rules)}
+.opt[data-v="ai"].on{border-color:var(--ai)}
+.opt.ok{border-color:var(--good)!important;background:rgba(91,227,122,.15)}
+.opt.no{border-color:var(--bad)!important;background:rgba(255,107,122,.13)}
+.opt:disabled{cursor:default}
+.side{display:grid;gap:12px}
+.side .label{font-size:.8rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.feedback{border-radius:16px;padding:16px;border:2px solid var(--line);background:var(--panel);animation:pop .3s}
+.feedback.good{border-color:var(--good)} .feedback.half{border-color:var(--robot)} .feedback.bad{border-color:var(--bad)}
+.feedback .verdict{font-family:var(--display);font-size:1.3rem;font-weight:600}
+.feedback.good .verdict{color:var(--good)} .feedback.half .verdict{color:var(--robot)} .feedback.bad .verdict{color:var(--bad)}
+.feedback .answer{margin:6px 0;font-weight:800}
+.feedback p{margin:6px 0 12px}
+.feedback .pts{font-weight:800;color:var(--robot);font-variant-numeric:tabular-nums}
+.row-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* VF */
+.vf{max-width:720px;margin:0 auto}
+.vf .stmt{font-family:var(--display);font-size:clamp(1.3rem,3.5vw,1.8rem);font-weight:600;margin:12px 0 18px;line-height:1.2}
+.vf .opts{grid-template-columns:1fr 1fr}
+.vf .opt{text-align:center;font-size:1.1rem;padding:16px}
+
+/* results */
+.res-top{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-bottom:20px}
+.score-big{font-family:var(--display);font-size:3.4rem;font-weight:700;color:var(--robot);line-height:1;font-variant-numeric:tabular-nums}
+.rank{font-family:var(--display);font-size:1.5rem;font-weight:600}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.final-matrix .cell{min-height:120px;justify-content:flex-start;align-items:stretch;color:var(--fg);border-style:solid}
+.final-matrix .cell .ttl{font-family:var(--display);font-size:.9rem;margin-bottom:6px}
+.final-matrix .cell[data-c="RA"] .ttl,.final-matrix .cell[data-c="RI"] .ttl{color:var(--robot)}
+.final-matrix .cell[data-c="NA"] .ttl{color:var(--rules)} .final-matrix .cell[data-c="NI"] .ttl{color:var(--ai)}
+.pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.pill{font-family:var(--body);font-size:.78rem;font-weight:700;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--fg)}
+.pill.x{border-color:var(--bad);color:var(--bad)}
+.legend{color:var(--muted);font-size:.88rem;margin:8px 0 18px}
+.legend .pill{display:inline-block}
+.quote{background:var(--panel);border-left:4px solid var(--ai);border-radius:4px 14px 14px 4px;padding:16px 18px;font-size:1.08rem;margin:20px 0;max-width:70ch}
+.quote b{color:var(--ai)}
+.errors{display:grid;gap:8px;margin-top:10px}
+.err{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.93rem}
+.err b{font-family:var(--display);font-weight:600}
+.section-t{font-size:1.25rem;margin:22px 0 10px}
+
+/* overlay */
+.overlay{position:fixed;inset:0;background:rgba(5,10,25,.8);display:grid;place-items:center;padding:20px;z-index:20}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;max-width:640px;width:100%;max-height:90vh;overflow:auto}
+.modal h2{margin-bottom:12px}
+.transition{text-align:center;padding:50px 10px}
+.transition h2{font-size:clamp(1.8rem,5vw,2.6rem);margin-bottom:10px}
+.transition p{color:var(--muted);max-width:52ch;margin:0 auto 20px}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;height:100%}
+
+@media (max-width:760px){
+  .hero,.play,.res-top{grid-template-columns:1fr}
+  .opts{grid-template-columns:1fr}
+  .cell{min-height:70px;font-size:.85rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">Las <span>Tres</span> Preguntas</div>
+    <div class="chip" id="chipScore" hidden>Puntos <b id="score">0</b></div>
+    <div class="chip" id="chipStreak" hidden>Racha <b id="streak">0</b></div>
+    <button class="iconbtn" id="btnHelp">Ver las 3 preguntas</button>
+    <button class="iconbtn" id="btnSound" aria-pressed="true">Sonido: sí</button>
+  </div>
+  <div class="progress" id="progressBar" hidden><i id="progress"></i></div>
+  <main id="app"></main>
+</div>
+
+<div class="overlay" id="help" hidden>
+  <div class="modal">
+    <h2>Las tres preguntas</h2>
+    <div class="qlist" id="helpList"></div>
+    <p style="color:var(--muted);margin:0 0 14px">La primera pregunta es independiente de las otras dos: un sistema puede ser robot y además automatización o IA.</p>
+    <button class="btn" id="closeHelp">Volver al juego</button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATOS ===================== */
+// body: true = cuerpo que percibe y actúa · false = no · "both" = caso para debatir (valen las dos)
+// learn: true = aprendió de ejemplos (IA) · false = reglas escritas por una persona (automatización)
+const CASES = [
+ // ---- Robot con IA ----
+ {n:"Auto autónomo",e:"🚗",d:"Un auto sin chofer que circula por la ciudad: frena ante peatones, dobla y estaciona solo.",body:true,learn:true,
+  x:"Tiene cuerpo: cámaras y radares para percibir, motor y volante para actuar. Y nadie escribió una regla para cada situación posible: aprendió de millones de horas de manejo grabadas, por eso reacciona ante calles que nunca vio. Es robot y es IA al mismo tiempo."},
+ {n:"Aspiradora con cámara",e:"🤖",d:"Una aspiradora robot que con su cámara reconoce medias, cables y caca de perro tirados en el piso, y los esquiva.",body:true,learn:true,
+  x:"Cuerpo que percibe y actúa: robot. Reconocer una media que nunca vio, tirada de cualquier forma, no se puede con reglas fijas: la entrenaron con miles de fotos de objetos en el piso. Robot con IA."},
+ {n:"Brazo de depósito",e:"📦",d:"En un depósito de envíos, un brazo agarra productos de una pila desordenada, incluso productos que nunca había visto antes.",body:true,learn:true,
+  x:"Es un brazo, así que tiene cuerpo. Agarrar objetos nuevos en posiciones al azar exige haber aprendido de muchísimos ejemplos de agarres. Robot con IA. Comparalo con el brazo soldador de la fábrica de autos."},
+ {n:"Perro robot",e:"🐕",d:"Una mascota robot que reconoce la cara y la voz de su dueño, y aprende qué trucos le gustan más.",body:true,learn:true,
+  x:"Camina, ve y escucha: cuerpo que percibe y actúa. Reconocer una cara o una voz entre muchas, y ajustar su conducta según lo que pasa, es aprendizaje a partir de datos. Robot con IA."},
+ {n:"Robot humanoide aprendiz",e:"🦾",d:"Un robot con forma humana que aprende a doblar ropa mirando videos de personas haciéndolo.",body:true,learn:true,
+  x:"Tiene cuerpo, y nadie le programó paso a paso cómo doblar cada prenda: encontró la forma de hacerlo a partir de los ejemplos que miró. Robot con IA."},
+ // ---- Robot automatizado ----
+ {n:"Brazo soldador",e:"🏭",d:"En una fábrica de autos, un brazo robótico suelda siempre los mismos puntos, en el mismo orden, todo el día.",body:true,learn:false,
+  x:"Es un robot: tiene sensores de posición y motores. Pero repite movimientos fijos que programó una persona; si corrés el auto diez centímetros, suelda en el aire. Robot sin IA. Y funciona perfecto: la automatización no es «menos»."},
+ {n:"Aspiradora básica",e:"🔄",d:"Una aspiradora robot simple: avanza en línea recta y, cuando choca, gira un ángulo al azar y sigue.",body:true,learn:false,
+  x:"Percibe (el sensor de choque) y actúa (ruedas y cepillo), así que es robot. Pero toda su «inteligencia» es una regla escrita por alguien: si choca, girar. Robot automatizado."},
+ {n:"Seguidor de línea",e:"🛤️",d:"El robot que se arma con Arduino: si el sensor izquierdo ve negro, gira a la izquierda; si el derecho ve negro, gira a la derecha.",body:true,learn:false,
+  x:"Robot con sensores y motores, y cada regla la escribió una persona (¡o vos!). Si la línea cambia de color, no sabe qué hacer. Robot automatizado."},
+ {n:"Cortacésped robot",e:"🌱",d:"Corta el pasto del jardín y, cuando detecta el cable enterrado que marca el borde, da la vuelta.",body:true,learn:false,
+  x:"Percibe el cable y actúa sobre el pasto: es un robot. La regla «si detectás el cable, girá» la puso una persona. Robot automatizado."},
+ {n:"Piloto automático de avión",e:"✈️",d:"Mantiene la altura, la velocidad y el rumbo del avión corrigiendo los timones según lo que miden los sensores.",body:true,learn:false,
+  x:"Mucha gente cree que es IA, pero el piloto automático clásico usa fórmulas de control escritas por ingenieros: si el avión baja, mover el timón tanto. Mide con sensores y actúa con los timones, así que cumple la pregunta 1. Robot automatizado."},
+ {n:"Riego con sensor de humedad",e:"💧",d:"Mide la humedad de la tierra: si baja de 30 %, abre la válvula hasta que vuelva a 50 %.",body:true,learn:false,
+  x:"Percibe (sensor de humedad) y actúa (válvula): cumple la pregunta 1. Los números 30 % y 50 % los eligió una persona. Comparalo con el riego por horario: el sensor es lo que lo vuelve robot."},
+ {n:"Puerta automática del súper",e:"🚪",d:"Se abre cuando su sensor detecta que alguien se acerca, y se cierra unos segundos después.",body:"both",learn:false,pol:true,
+  x:"Caso para debatir. Percibe (sensor) y actúa (motor), así que por la pregunta 1 podría contar como robot; mucha gente diría que es demasiado simple para llamarlo así. Vale cualquiera de las dos si la podés justificar. Lo que no se discute: sigue una regla escrita por una persona. Automatización."},
+ // ---- IA sin cuerpo ----
+ {n:"ChatGPT",e:"💭",d:"Un chatbot que responde preguntas, escribe textos y explica temas para los que nadie le dejó una respuesta preparada.",body:false,learn:true,
+  x:"No tiene cuerpo: funciona en servidores y solo produce texto. Aprendió de cantidades enormes de textos y responde preguntas nuevas. Es IA y no es un robot."},
+ {n:"Feed «Para ti» de TikTok",e:"📱",d:"Elige qué video mostrarte después según lo que mirás, cuánto tiempo te quedás y qué salteás.",body:false,learn:true,
+  x:"No tiene cuerpo. Nadie escribió «a este usuario mostrale videos de gatos»: el sistema aprende de lo que hacen millones de personas y de lo que hacés vos. IA sin cuerpo."},
+ {n:"Filtro de spam",e:"📧",d:"Manda a la carpeta Spam los mails truchos, aunque cada estafa nueva esté escrita de forma distinta.",body:false,learn:true,
+  x:"Se entrenó con millones de mails que la gente marcó como spam. Por eso detecta estafas que nunca vio, aunque cambien las palabras. IA sin cuerpo. Comparalo con la regla de Gmail."},
+ {n:"Desbloqueo con la cara",e:"🔓",d:"El celular te reconoce con anteojos, con gorra o recién levantado, y se desbloquea.",body:false,learn:true,
+  x:"El celular no actúa sobre el mundo físico: solo abre la pantalla. Reconocerte en condiciones nuevas (con gorra, con poca luz) es lo típico de un sistema que aprendió de ejemplos. IA sin cuerpo."},
+ {n:"Traductor automático",e:"🌐",d:"Traduce una frase en lenguaje coloquial del inglés al castellano y el resultado tiene bastante sentido.",body:false,learn:true,
+  x:"Los traductores actuales no traducen palabra por palabra con un diccionario: aprendieron de millones de textos ya traducidos. Por eso se las arreglan con frases que nunca vieron. IA sin cuerpo."},
+ {n:"Teclado predictivo",e:"⌨️",d:"Mientras escribís en el celular, te sugiere la palabra siguiente y con el tiempo aprende cómo escribís vos.",body:false,learn:true,
+  x:"Predice la próxima palabra a partir de muchísimos textos y de los tuyos. Si empezás a usar una palabra nueva, la incorpora. IA sin cuerpo."},
+ {n:"Generador de imágenes",e:"🎨",d:"Escribís «un carpincho astronauta tomando mate» y crea una imagen que nunca existió.",body:false,learn:true,
+  x:"Aprendió de millones de imágenes con su descripción y produce algo nuevo. No tiene cuerpo. IA que no es robot."},
+ {n:"Detector de fraude",e:"💳",d:"El sistema del banco bloquea una compra con tarjeta porque «no se parece» a las que hacés habitualmente.",body:false,learn:true,
+  x:"Nadie escribió la lista de todas las compras sospechosas: el sistema aprendió de millones de compras normales y fraudulentas. IA sin cuerpo."},
+ {n:"Filtro de cara de Instagram",e:"🎭",d:"Te pone orejas de perro que siguen tu cara aunque gires la cabeza o te muevas.",body:false,learn:true,
+  x:"Encontrar dónde están los ojos, la nariz y la boca en cualquier cara y cualquier ángulo es algo que se aprende de miles de fotos. Se ve en una pantalla, sin cuerpo. IA."},
+ // ---- Automatización sin cuerpo ----
+ {n:"Alarma del celular",e:"⏰",d:"Suena todos los días hábiles a las 7:00.",body:false,learn:false,
+  x:"Una regla escrita por vos: días hábiles, 7:00. No percibe nada ni aprende; si un día no tenés clases, suena igual. Automatización."},
+ {n:"Regla de Gmail",e:"📁",d:"«Si el mail viene de profe@escuela.edu.ar, moverlo a la carpeta Escuela.»",body:false,learn:false,
+  x:"Una regla exacta escrita por una persona. Si el profe te escribe desde otra dirección, la regla no lo detecta. Automatización. El filtro de spam, en cambio, aprendió solo."},
+ {n:"Calculadora",e:"🧮",d:"Hace cuentas exactas, siempre igual: 7 × 8 da 56 hoy y dentro de diez años.",body:false,learn:false,
+  x:"Hace siempre lo mismo siguiendo reglas matemáticas programadas. Que sea exacta y confiable es justamente la ventaja de la automatización."},
+ {n:"Bot de WhatsApp de una empresa",e:"💬",d:"«Hola. Escribí 1 para consultar tu saldo, 2 para hablar con un asesor…»",body:false,learn:false,
+  x:"Parece inteligente porque chatea, pero es un menú: si escribís otra cosa, contesta «opción no válida». No sabe responder situaciones nuevas. Automatización."},
+ {n:"Fantasmas del Pac-Man",e:"👻",d:"Cada fantasma persigue a Pac-Man con su propia estrategia: uno va directo, otro intenta cortarle el paso.",body:false,learn:false,
+  x:"Parecen tener personalidad, pero cada uno sigue reglas programadas en 1980. Muchos «enemigos con IA» de los videojuegos son en realidad automatización."},
+ {n:"Semáforo con temporizador",e:"🚦",d:"Cambia de verde a amarillo y a rojo cada 40 segundos, pase quien pase.",body:false,learn:false,
+  x:"Tiene una parte física y actúa (prende luces), pero no percibe nada: no sabe si hay autos. Sin percepción no cumple la pregunta 1. Automatización pura."},
+ {n:"Riego por horario",e:"🕗",d:"Abre los aspersores todos los días a las 20:00 durante 15 minutos, aunque esté lloviendo.",body:false,learn:false,
+  x:"Actúa, pero no percibe: riega aunque llueva. Una regla de horario escrita por una persona. Automatización. Si le agregás un sensor de humedad, pasa a cumplir la pregunta 1."}
+];
+
+const VF = [
+ {s:"La automatización es peor que la inteligencia artificial.",v:false,x:"Falso. La mayoría de las máquinas que funcionan bien son automatización: una calculadora o un brazo soldador hacen su trabajo de forma exacta y confiable."},
+ {s:"Si un sistema no tiene cuerpo, no puede ser inteligencia artificial.",v:false,x:"Falso. ChatGPT o el feed de TikTok son IA y no son robots: la IA no necesita cuerpo."},
+ {s:"Todos los robots tienen inteligencia artificial.",v:false,x:"Falso. El brazo de una fábrica es un robot y repite movimientos fijos. Un robot puede no tener nada de IA."},
+ {s:"Un mismo sistema puede ser robot e inteligencia artificial a la vez.",v:true,x:"Verdadero. Un auto autónomo tiene cuerpo y además aprendió a manejar a partir de ejemplos."},
+ {s:"En la automatización, una persona escribe todas las reglas.",v:true,x:"Verdadero. Esa es la clave: la máquina hace exactamente lo que alguien le indicó."},
+ {s:"En la IA, la máquina encuentra las reglas sola a partir de ejemplos.",v:true,x:"Verdadero. Por eso puede responder ante situaciones nuevas. La próxima clase lo vemos entrenando una IA."},
+ {s:"Si un programa chatea con vos, seguro que es inteligencia artificial.",v:false,x:"Falso. Un bot de menú («escribí 1, 2 o 3») chatea y es pura automatización. Lo que importa es si aprendió de ejemplos."}
+];
+
+const CELL = {
+ RA:{t:"Robot automatizado",s:"robot + reglas"},
+ RI:{t:"Robot con IA",s:"robot + aprendió"},
+ NA:{t:"Automatización",s:"sin cuerpo · reglas"},
+ NI:{t:"IA (no es robot)",s:"sin cuerpo · aprendió"}
+};
+const QUESTIONS = [
+ {k:"Pregunta 1",c:"var(--robot)",q:"¿Tiene un cuerpo físico que percibe y actúa sobre el mundo?",a:"Si la respuesta es sí: es un robot."},
+ {k:"Pregunta 2",c:"var(--rules)",q:"¿Hace siempre lo mismo, siguiendo reglas que escribió una persona?",a:"Si la respuesta es sí: es automatización."},
+ {k:"Pregunta 3",c:"var(--ai)",q:"¿Aprendió a partir de muchos ejemplos o datos, y puede responder ante situaciones nuevas?",a:"Si la respuesta es sí: es inteligencia artificial."}
+];
+
+/* ===================== AUDIO ===================== */
+let AC=null, soundOn=true;
+function tone(freq,dur,type="sine",when=0,vol=.12){
+  if(!soundOn) return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type=type;o.frequency.value=freq;
+    const t=AC.currentTime+when;
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur);
+  }catch(e){}
+}
+const sfx={
+  click:()=>tone(520,.07,"triangle"),
+  good:()=>{tone(660,.12,"triangle");tone(880,.12,"triangle",.1);tone(1175,.2,"triangle",.2)},
+  half:()=>{tone(520,.14,"triangle");tone(620,.18,"triangle",.12)},
+  bad:()=>{tone(220,.2,"sawtooth",0,.07);tone(180,.25,"sawtooth",.15,.07)},
+  end:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.22,"triangle",i*.11))
+};
+
+/* ===================== CONFETTI ===================== */
+const cv=document.getElementById("fx"),cx=cv.getContext("2d");let parts=[],raf=null;
+function resize(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio}
+addEventListener("resize",resize);resize();
+function confetti(n=80){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cols=["#ffb547","#4fc3ff","#c58bff","#5be37a","#eaf0ff"];
+  for(let i=0;i<n;i++)parts.push({x:cv.width*(.2+Math.random()*.6),y:cv.height*.35,vx:(Math.random()-.5)*14*devicePixelRatio,vy:(-Math.random()*12-4)*devicePixelRatio,s:(4+Math.random()*5)*devicePixelRatio,c:cols[i%cols.length],r:Math.random()*6,life:120});
+  if(!raf)loop();
+}
+function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts=parts.filter(p=>p.life-->0);
+  parts.forEach(p=>{p.vy+=.35*devicePixelRatio;p.x+=p.vx;p.y+=p.vy;p.r+=.2;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.globalAlpha=Math.min(1,p.life/40);cx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66);cx.restore()});
+  raf=parts.length?requestAnimationFrame(loop):(cx.clearRect(0,0,cv.width,cv.height),null);
+}
+
+/* ===================== ESTADO ===================== */
+const $=s=>document.querySelector(s);
+const app=$("#app");
+let S={};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const cellOf=(body,learn)=>(body?"R":"N")+(learn?"I":"A");
+const correctCell=c=>cellOf(c.body!==false,c.learn);
+
+function pickCases(mode){
+  if(mode==="full") return shuffle(CASES);
+  const groups={RA:[],RI:[],NA:[],NI:[]};
+  CASES.forEach(c=>groups[correctCell(c)].push(c));
+  let picked=[];Object.values(groups).forEach(g=>picked.push(...shuffle(g).slice(0,3)));
+  const rest=shuffle(CASES.filter(c=>!picked.includes(c)));
+  picked.push(...rest.slice(0,2));
+  return shuffle(picked);
+}
+
+function hud(show){
+  $("#chipScore").hidden=!show;$("#chipStreak").hidden=!show;$("#progressBar").hidden=!show;
+  $("#score").textContent=S.score||0;$("#streak").textContent=S.streak||0;
+}
+function setProgress(){
+  const total=S.cases.length+VF.length, done=S.i+(S.phase==="vf"?S.cases.length+S.j:0);
+  $("#progress").style.width=(100*done/total)+"%";
+}
+function mult(){return S.streak>=5?2:S.streak>=3?1.5:1}
+
+/* ===================== PANTALLAS ===================== */
+function qHTML(){
+  return QUESTIONS.map(q=>`<div class="q"><span class="tag" style="background:${q.c}">${q.k}</span><p>${q.q}<small>${q.a}</small></p></div>`).join("");
+}
+function start(){
+  hud(false);
+  app.innerHTML=`
+  <section class="hero">
+    <div>
+      <h1>¿Robot, automatización o <em>inteligencia artificial</em>?</h1>
+      <p>Vas a ver casos reales. Para cada uno respondé dos cosas: si tiene un cuerpo que percibe y actúa, y cómo sabe qué hacer. Ojo: un sistema puede ser robot <b>y</b> además IA o automatización.</p>
+      <div class="modes">
+        <button class="btn" id="m-short">Ronda corta · 14 casos</button>
+        <button class="btn alt" id="m-full">Ronda completa · ${CASES.length} casos</button>
+      </div>
+      <p style="font-size:.9rem;margin-top:12px">Al final hay una ronda de verdadero o falso con las ideas clave.</p>
+    </div>
+    <div class="qlist">${qHTML()}</div>
+  </section>`;
+  $("#m-short").onclick=()=>begin("short");
+  $("#m-full").onclick=()=>begin("full");
+}
+function begin(mode){
+  sfx.click();
+  S={cases:pickCases(mode),i:0,j:0,score:0,streak:0,best:0,hits:0,halfs:0,vfHits:0,log:[],phase:"cases"};
+  hud(true);renderCase();
+}
+
+function matrixHTML(interactive){
+  const cell=k=>interactive?`<button class="cell" data-c="${k}">${CELL[k].t}<span class="sub">${CELL[k].s}</span></button>`
+                           :`<div class="cell" data-c="${k}">${CELL[k].t}<span class="sub">${CELL[k].s}</span></div>`;
+  return `<div class="matrix">
+    <div></div><div class="mx-h col1">Reglas escritas por una persona</div><div class="mx-h col2">Aprendió de ejemplos</div>
+    <div class="mx-h row row1">Con cuerpo</div>${cell("RA")}${cell("RI")}
+    <div class="mx-h row">Sin cuerpo</div>${cell("NA")}${cell("NI")}
+  </div>`;
+}
+
+function renderCase(){
+  S.phase="cases";setProgress();
+  const c=S.cases[S.i];S.ans={b:null,l:null};S.t0=performance.now();S.locked=false;
+  app.innerHTML=`
+  <section class="play">
+    <div class="case" id="caseCard">
+      <div class="num">Caso ${S.i+1} de ${S.cases.length}</div>
+      <div class="head"><div class="emo" aria-hidden="true">${c.e}</div><h2>${c.n}</h2></div>
+      <p class="desc">${c.d}</p>
+      ${c.pol?'<span class="polemico">Caso polémico</span>':""}
+      <div class="ask">
+        <div>
+          <h3><span class="k" style="background:var(--robot)">1</span>¿Tiene un cuerpo físico que percibe y actúa sobre el mundo?</h3>
+          <div class="opts">
+            <button class="opt" data-q="b" data-v="yes">Sí, percibe y actúa</button>
+            <button class="opt" data-q="b" data-v="no">No</button>
+          </div>
+        </div>
+        <div>
+          <h3><span class="k" style="background:linear-gradient(90deg,var(--rules),var(--ai))">2·3</span>¿Cómo sabe qué hacer?</h3>
+          <div class="opts">
+            <button class="opt" data-q="l" data-v="rules">Sigue reglas que escribió una persona; hace siempre lo mismo</button>
+            <button class="opt" data-q="l" data-v="ai">Aprendió de muchos ejemplos; responde ante situaciones nuevas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="label">Tu clasificación · también podés tocar un casillero</div>
+      ${matrixHTML(true)}
+      <div id="fbZone"><div class="row-actions"><button class="btn" id="btnCheck" disabled>Clasificar</button></div></div>
+    </div>
+  </section>`;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(S.locked)return;sfx.click();
+    S.ans[b.dataset.q]=b.dataset.q==="b"?b.dataset.v==="yes":b.dataset.v==="ai";syncSel();
+  });
+  app.querySelectorAll("button.cell").forEach(b=>b.onclick=()=>{
+    if(S.locked)return;sfx.click();
+    S.ans.b=b.dataset.c[0]==="R";S.ans.l=b.dataset.c[1]==="I";syncSel();
+  });
+  $("#btnCheck").onclick=check;
+}
+function syncSel(){
+  app.querySelectorAll('.opt[data-q="b"]').forEach(b=>b.classList.toggle("on",S.ans.b!==null&&(b.dataset.v==="yes")===S.ans.b));
+  app.querySelectorAll('.opt[data-q="l"]').forEach(b=>b.classList.toggle("on",S.ans.l!==null&&(b.dataset.v==="ai")===S.ans.l));
+  const k=S.ans.b!==null&&S.ans.l!==null?cellOf(S.ans.b,S.ans.l):null;
+  app.querySelectorAll(".matrix .cell").forEach(c=>c.classList.toggle("sel",c.dataset.c===k));
+  $("#btnCheck").disabled=!k;
+}
+function check(){
+  if(S.locked)return;S.locked=true;
+  const c=S.cases[S.i];
+  const okB=c.body==="both"?true:S.ans.b===c.body;
+  const okL=S.ans.l===c.learn;
+  const secs=(performance.now()-S.t0)/1000;
+  let pts=(okB?50:0)+(okL?50:0),bonus=0,cls,verdict;
+  if(okB&&okL){S.streak++;S.hits++;bonus=Math.max(0,Math.round(30-secs*1.2));cls="good";verdict=["¡Bien clasificado!","¡Exacto!","¡Impecable!","¡Eso es!"][Math.floor(Math.random()*4)];sfx.good();confetti(50)}
+  else if(okB||okL){S.streak=0;S.halfs++;cls="half";verdict="Una de dos";sfx.half()}
+  else{S.streak=0;cls="bad";verdict="Esta no";sfx.bad()}
+  S.best=Math.max(S.best,S.streak);
+  const total=Math.round((pts+bonus)*mult());S.score+=total;
+  S.log.push({c,chosen:cellOf(S.ans.b,S.ans.l),okB,okL});
+  hud(true);
+  // marcar botones
+  app.querySelectorAll(".opt").forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.q==="b"){const isYes=b.dataset.v==="yes";
+      if(c.body==="both"){if(b.classList.contains("on"))b.classList.add("ok")}
+      else if(isYes===c.body)b.classList.add("ok");else if(b.classList.contains("on"))b.classList.add("no");}
+    else{const isAi=b.dataset.v==="ai";if(isAi===c.learn)b.classList.add("ok");else if(b.classList.contains("on"))b.classList.add("no");}
+  });
+  const right=c.body==="both"?cellOf(S.ans.b,c.learn):correctCell(c);
+  app.querySelectorAll(".matrix .cell").forEach(el=>{el.disabled=true;
+    if(el.dataset.c===right)el.classList.add("right");else if(el.classList.contains("sel"))el.classList.add("wrong")});
+  const ansTxt=c.body==="both"?"Automatización · cuerpo: se puede debatir":CELL[correctCell(c)].t;
+  const last=S.i===S.cases.length-1;
+  $("#fbZone").innerHTML=`
+    <div class="feedback ${cls}">
+      <div class="verdict">${verdict}</div>
+      <div class="answer">Respuesta: ${ansTxt}</div>
+      <p>${c.x}</p>
+      <div class="row-actions">
+        <button class="btn" id="btnNext">${last?"Ir a las ideas clave":"Siguiente caso"}</button>
+        <span class="pts">+${total} pts${bonus?` · bonus velocidad ${bonus}`:""}${mult()>1?` · ×${mult()}`:""}</span>
+      </div>
+    </div>`;
+  $("#btnNext").focus();
+  $("#btnNext").onclick=()=>{sfx.click();S.i++;if(S.i<S.cases.length)renderCase();else vfIntro()};
+}
+
+function vfIntro(){
+  S.phase="vf";S.j=0;S.vf=shuffle(VF);setProgress();
+  app.innerHTML=`<section class="transition">
+    <h2>Última parte: las ideas clave</h2>
+    <p>${VF.length} frases. Decidí si son verdaderas o falsas. Cada acierto suma 60 puntos y la racha sigue corriendo.</p>
+    <button class="btn" id="go">Empezar</button></section>`;
+  $("#go").onclick=()=>{sfx.click();renderVF()};
+}
+function renderVF(){
+  setProgress();const q=S.vf[S.j];
+  app.innerHTML=`<section class="vf case">
+    <div class="num">Idea clave ${S.j+1} de ${S.vf.length}</div>
+    <div class="stmt">${q.s}</div>
+    <div class="opts">
+      <button class="opt" data-v="1">Verdadero</button>
+      <button class="opt" data-v="0">Falso</button>
+    </div>
+    <div id="fbZone" style="margin-top:14px"></div></section>`;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const pick=b.dataset.v==="1",ok=pick===q.v;
+    app.querySelectorAll(".opt").forEach(o=>{o.disabled=true;if((o.dataset.v==="1")===q.v)o.classList.add("ok");else if(o===b)o.classList.add("no")});
+    let pts=0;
+    if(ok){S.streak++;S.vfHits++;pts=Math.round(60*mult());sfx.good();confetti(40)}else{S.streak=0;sfx.bad()}
+    S.best=Math.max(S.best,S.streak);S.score+=pts;hud(true);
+    const last=S.j===S.vf.length-1;
+    $("#fbZone").innerHTML=`<div class="feedback ${ok?"good":"bad"}"><div class="verdict">${ok?"¡Correcto!":"No es así"}</div><p>${q.x}</p>
+      <div class="row-actions"><button class="btn" id="btnNext">${last?"Ver resultados":"Siguiente"}</button>${pts?`<span class="pts">+${pts} pts</span>`:""}</div></div>`;
+    $("#btnNext").focus();
+    $("#btnNext").onclick=()=>{sfx.click();S.j++;if(S.j<S.vf.length)renderVF();else results()};
+  });
+}
+
+function results(){
+  $("#progress").style.width="100%";sfx.end();confetti(160);
+  const nC=S.cases.length,pct=Math.round(100*(S.hits+S.vfHits)/(nC+S.vf.length));
+  const rank=pct>=90?"Experto/a en sistemas inteligentes":pct>=75?"Detective de algoritmos":pct>=55?"Analista en formación":"Clasificador/a aprendiz";
+  const byCell={RA:[],RI:[],NA:[],NI:[]};
+  S.log.forEach(l=>{const k=l.c.body==="both"?cellOf(true,l.c.learn):correctCell(l.c);byCell[k].push(l)});
+  const cellBox=k=>`<div class="cell" data-c="${k}"><div class="ttl">${CELL[k].t}</div><div class="pills">${byCell[k].map(l=>`<span class="pill ${l.okB&&l.okL?"":"x"}">${l.c.e} ${l.c.n}</span>`).join("")||'<span class="sub">—</span>'}</div></div>`;
+  const errs=S.log.filter(l=>!(l.okB&&l.okL));
+  app.innerHTML=`
+  <section>
+    <div class="res-top">
+      <div class="score-big">${S.score}</div>
+      <div><div class="rank">${rank}</div>
+        <div class="stats">
+          <span class="chip">Casos perfectos <b>${S.hits}/${nC}</b></span>
+          <span class="chip">Ideas clave <b>${S.vfHits}/${S.vf.length}</b></span>
+          <span class="chip">Mejor racha <b>${S.best}</b></span>
+        </div></div>
+    </div>
+    <h2 class="section-t">El mapa de los casos</h2>
+    <p class="legend">Cada caso en su lugar correcto. Los que aparecen en rojo son los que clasificaste distinto.</p>
+    <div class="final-matrix">${(()=>{return `<div class="matrix">
+      <div></div><div class="mx-h col1">Reglas escritas por una persona</div><div class="mx-h col2">Aprendió de ejemplos</div>
+      <div class="mx-h row row1">Con cuerpo</div>${cellBox("RA")}${cellBox("RI")}
+      <div class="mx-h row">Sin cuerpo</div>${cellBox("NA")}${cellBox("NI")}</div>`})()}</div>
+    ${errs.length?`<h2 class="section-t">Para revisar</h2><div class="errors">${errs.map(l=>`<div class="err"><b>${l.c.e} ${l.c.n}</b>: elegiste «${CELL[l.chosen].t}». ${l.c.x}</div>`).join("")}</div>`:""}
+    <div class="quote">La diferencia más importante: en la <b>automatización</b>, una persona escribe todas las reglas. En la <b>IA</b>, la máquina encuentra las reglas sola a partir de ejemplos. La próxima clase vamos a entrenar una IA nosotros mismos para ver cómo pasa eso.</div>
+    <div class="row-actions"><button class="btn" id="again">Jugar de nuevo</button><button class="btn alt" id="home">Volver al inicio</button></div>
+  </section>`;
+  $("#again").onclick=()=>begin(S.cases.length===CASES.length?"full":"short");
+  $("#home").onclick=start;
+}
+
+/* ===================== UI GENERAL ===================== */
+$("#helpList").innerHTML=qHTML();
+$("#btnHelp").onclick=()=>{$("#help").hidden=false;$("#closeHelp").focus()};
+$("#closeHelp").onclick=()=>{$("#help").hidden=true};
+$("#help").onclick=e=>{if(e.target.id==="help")$("#help").hidden=true};
+addEventListener("keydown",e=>{if(e.key==="Escape")$("#help").hidden=true});
+$("#btnSound").onclick=function(){soundOn=!soundOn;this.textContent="Sonido: "+(soundOn?"sí":"no");this.setAttribute("aria-pressed",soundOn)};
+start();
+</script>
+</body>
+</html>
