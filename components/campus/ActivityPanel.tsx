@@ -4,16 +4,22 @@ import { useState } from "react";
 import type { Activity } from "@/data/schemas";
 import { useQuizResult } from "@/hooks/useQuizResult";
 import { useSession } from "@/hooks/useSession";
+import type { QuizAnswer } from "@/lib/quiz-scoring";
 import { ActivityIntro } from "./ActivityIntro";
 import { Quiz } from "./Quiz";
 import { QuizResult } from "./QuizResult";
 
-export function ActivityPanel({ activity }: { activity: Activity }) {
+interface ActivityPanelProps {
+  activity: Activity;
+  moduleHref: string;
+}
+
+export function ActivityPanel({ activity, moduleHref }: ActivityPanelProps) {
   const { user } = useSession();
   const { answers, saveAnswers } = useQuizResult(user?.id ?? "", activity);
   const [isTaking, setIsTaking] = useState(false);
 
-  const handleFinish = (finalAnswers: number[]) => {
+  const handleFinish = (finalAnswers: QuizAnswer[]) => {
     saveAnswers(finalAnswers);
     setIsTaking(false);
   };
@@ -24,7 +30,12 @@ export function ActivityPanel({ activity }: { activity: Activity }) {
 
   if (answers) {
     return (
-      <QuizResult activity={activity} answers={answers} onRetry={() => setIsTaking(true)} />
+      <QuizResult
+        activity={activity}
+        answers={answers}
+        moduleHref={moduleHref}
+        onRetry={() => setIsTaking(true)}
+      />
     );
   }
 

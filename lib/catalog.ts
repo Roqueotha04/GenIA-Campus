@@ -15,6 +15,18 @@ export function findClass(courseModule: CourseModule, rawNumber: string): Course
   return courseModule.classes?.find((courseClass) => courseClass.number === number);
 }
 
+export function findClassContext(levelSlug: string, moduleNumber: string, classNumber: string) {
+  const level = findLevel(levelSlug);
+  const courseModule = level && findModule(level, moduleNumber);
+  const courseClass = courseModule && findClass(courseModule, classNumber);
+  if (!level || !courseModule || !courseClass) return undefined;
+  return { level, courseModule, courseClass };
+}
+
+export function buildModuleHref(level: Level, courseModule: CourseModule): string {
+  return `/campus/${level.slug}/${courseModule.number}`;
+}
+
 export function hasClasses(courseModule: CourseModule): boolean {
   return (courseModule.classes?.length ?? 0) > 0;
 }

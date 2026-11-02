@@ -22,7 +22,7 @@ El clean code se prioriza **siempre**, por encima de la velocidad o la convenien
 - Usuarios, niveles, módulos y actividades viven en `data/` (tipados y validados con Zod al importarse).
 - La sesión es simulada: `SessionProvider` guarda el id del usuario en `localStorage` y `RequireSession` protege `/campus`. Las credenciales quedan en el bundle; es temporal y se reemplaza al pasar a backend (previsto: Supabase con auth, matrícula por clave, docentes editando su curso y archivos).
 - Los intentos del quiz se guardan en `localStorage` (solo las respuestas; el puntaje se calcula).
-- Solo Adultos · Módulo 1 (clase "¿Qué es la IA?") y Nivel 3 · Módulo 1 (juego "Las tres preguntas") tienen contenido. El resto de los módulos son navegables pero muestran "Todavía no hay nada cargado". No cargar contenido en otros módulos sin que lo pida el dueño.
+- Solo Adultos · Módulo 1 (clase "Introducción a la IA"), Adultos · Módulo 2 (clase "Introducción a la automatización") y Nivel 3 · Módulo 1 (juego "Las tres preguntas") tienen contenido. El resto de los módulos son navegables pero muestran "Todavía no hay nada cargado". No cargar contenido en otros módulos sin que lo pida el dueño.
 
 ## Stack
 Next.js 16 (App Router) + React 19 + Tailwind CSS 4 + TypeScript + Framer Motion 12 + Zod.

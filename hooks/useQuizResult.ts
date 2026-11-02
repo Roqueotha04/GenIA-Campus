@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { Activity } from "@/data/schemas";
-import { parseAnswers, serializeAnswers } from "@/lib/quiz-scoring";
+import { parseAnswers, serializeAnswers, type QuizAnswer } from "@/lib/quiz-scoring";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export function useQuizResult(userId: string, activity: Activity) {
@@ -10,11 +10,11 @@ export function useQuizResult(userId: string, activity: Activity) {
   );
 
   const answers = useMemo(
-    () => parseAnswers(rawAnswers, activity.questions.length),
-    [rawAnswers, activity.questions.length],
+    () => parseAnswers(rawAnswers, activity.questions),
+    [rawAnswers, activity.questions],
   );
 
-  const saveAnswers = (nextAnswers: number[]) => setRawAnswers(serializeAnswers(nextAnswers));
+  const saveAnswers = (nextAnswers: QuizAnswer[]) => setRawAnswers(serializeAnswers(nextAnswers));
 
   return { answers, saveAnswers };
 }

@@ -2,81 +2,80 @@
 
 import { useState } from "react";
 import type { Activity } from "@/data/schemas";
+import { shuffle } from "@/lib/shuffle";
+import type { QuizAnswer } from "@/lib/quiz-scoring";
 import { ActionButton } from "@/components/ui/Button";
-import { QuizOption } from "./QuizOption";
+import { QuizNavigator } from "./QuizNavigator";
+import { QuizQuestionCard } from "./QuizQuestionCard";
 
 interface QuizProps {
   activity: Activity;
-  onFinish: (answers: number[]) => void;
+  onFinish: (answers: QuizAnswer[]) => void;
+}
+
+function isAnswered(answer: QuizAnswer | null): answer is QuizAnswer {
+  return answer !== null;
 }
 
 export function Quiz({ activity, onFinish }: QuizProps) {
+  const [questions] = useState(() => shuffle(activity.questions));
+  const totalQuestions = questions.length;
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<number[]>([]);
+  const [answers, setAnswers] = useState<(QuizAnswer | null)[]>(() =>
+    questions.map(() => null),
+  );
 
-  const question = activity.questions[questionIndex];
-  const totalQuestions = activity.questions.length;
+  const question = questions[questionIndex];
+  const isFirstQuestion = questionIndex === 0;
   const isLastQuestion = questionIndex === totalQuestions - 1;
-  const progressPercentage = ((questionIndex + 1) / totalQuestions) * 100;
+  const completedAnswers = answers.filter(isAnswered);
+  const isComplete = completedAnswers.length === totalQuestions;
 
-  const handleAdvance = () => {
-    if (selectedIndex === null) return;
-    const nextAnswers = [...answers, selectedIndex];
-    if (isLastQuestion) {
-      onFinish(nextAnswers);
-      return;
-    }
-    setAnswers(nextAnswers);
-    setSelectedIndex(null);
-    setQuestionIndex(questionIndex + 1);
+  const handleChangeAnswer = (nextAnswer: QuizAnswer | null) =>
+    setAnswers((current) =>
+      current.map((answer, index) => (index === questionIndex ? nextAnswer : answer)),
+    );
+
+  const handleFinish = () => {
+    if (!isComplete) return;
+    onFinish(activity.questions.map((original) => completedAnswers[questions.indexOf(original)]));
   };
 
   return (
-    <div>
-      <div className="flex items-end justify-between gap-4">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-          Actividad
-        </h2>
-        <p className="text-sm text-muted" aria-live="polite">
-          Pregunta {questionIndex + 1} de {totalQuestions}
-        </p>
-      </div>
-      <div
-        role="progressbar"
-        aria-label="Progreso de la actividad"
-        aria-valuemin={0}
-        aria-valuemax={totalQuestions}
-        aria-valuenow={questionIndex + 1}
-        className="mt-4 h-1 w-full bg-line"
-      >
-        <div
-          className="h-full bg-primary transition-[width] duration-300"
-          style={{ width: `${progressPercentage}%` }}
+    <div className="grid gap-8 lg:grid-cols-[1fr_21rem] lg:items-start lg:gap-12">
+      <div className="flex flex-col gap-8 md:gap-10">
+        <QuizQuestionCard
+          number={questionIndex + 1}
+          question={question}
+          answer={answers[questionIndex]}
+          onChange={handleChangeAnswer}
         />
-      </div>
-      <fieldset key={question.id} className="mt-8 border border-line bg-surface p-6 md:p-8">
-        <legend className="sr-only">{question.prompt}</legend>
-        <p className="font-heading text-xl font-semibold leading-snug tracking-tight text-foreground md:text-2xl">
-          {question.prompt}
-        </p>
-        <div className="mt-6 flex flex-col gap-3">
-          {question.options.map((option, optionIndex) => (
-            <QuizOption
-              key={option}
-              name={question.id}
-              label={option}
-              checked={selectedIndex === optionIndex}
-              onSelect={() => setSelectedIndex(optionIndex)}
-            />
-          ))}
+        <div className="flex justify-between gap-4">
+          <ActionButton
+            variant="outline"
+            className="min-w-36"
+            onClick={() => setQuestionIndex(questionIndex - 1)}
+            disabled={isFirstQuestion}
+          >
+            Anterior
+          </ActionButton>
+          {isLastQuestion ? (
+            <ActionButton className="min-w-36" onClick={handleFinish} disabled={!isComplete}>
+              Terminar intento
+            </ActionButton>
+          ) : (
+            <ActionButton className="min-w-36" onClick={() => setQuestionIndex(questionIndex + 1)}>
+              Siguiente
+            </ActionButton>
+          )}
         </div>
-      </fieldset>
-      <div className="mt-6 flex justify-end">
-        <ActionButton onClick={handleAdvance} disabled={selectedIndex === null}>
-          {isLastQuestion ? "Finalizar" : "Siguiente"}
-        </ActionButton>
       </div>
+      <QuizNavigator
+        answers={answers}
+        currentIndex={questionIndex}
+        onSelectQuestion={setQuestionIndex}
+        onFinish={handleFinish}
+      />
     </div>
   );
 }

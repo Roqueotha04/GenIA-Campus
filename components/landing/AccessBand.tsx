@@ -9,8 +9,8 @@ export function AccessBand() {
       <Reveal className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
         <SectionHeading
           tone="onDark"
-          title="¿Ya tenés tu cuenta?"
-          accent="Entrá y seguí donde lo dejaste."
+          title="Acceso al campus"
+          accent="Con el usuario que te dio tu docente."
         />
         <Button href="/acceso" variant="inverse">
           Acceder al campus

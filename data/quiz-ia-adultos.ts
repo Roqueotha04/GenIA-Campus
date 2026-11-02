@@ -4,138 +4,160 @@ export const quizIaAdultos = activitySchema.parse({
   id: "adultos-modulo-1-quiz",
   title: "¿Qué sabés de inteligencia artificial?",
   description:
-    "Diez preguntas de opción múltiple sobre lo que vimos en el módulo. Al terminar ves tu puntaje y el detalle de cada respuesta.",
-  passingScore: 6,
+    "Doce preguntas sobre la Clase 1: verdadero o falso, opción múltiple y respuestas escritas. Al terminar ves tu puntaje y el detalle de cada respuesta.",
+  passingScore: 7,
   questions: [
     {
       id: "q1",
-      prompt: "¿Qué es la inteligencia artificial?",
+      kind: "single-choice",
+      prompt: "Según la clase, ¿qué es la inteligencia artificial?",
       options: [
-        "Un conjunto de técnicas que permite a las máquinas realizar tareas que normalmente requieren inteligencia humana",
-        "Un robot con conciencia propia que piensa como una persona",
-        "Un buscador que solo sirve para encontrar páginas en internet",
-        "Una base de datos muy grande con todas las respuestas posibles",
+        "El campo de la informática que desarrolla sistemas capaces de realizar tareas que normalmente requieren inteligencia humana",
+        "Un buscador que encuentra información en internet",
+        "Un robot que piensa y siente como una persona",
+        "Una base de datos con todas las respuestas posibles",
       ],
       correctIndex: 0,
       explanation:
-        "La IA agrupa técnicas que permiten a las máquinas resolver tareas como reconocer imágenes, entender lenguaje o tomar decisiones. No implica conciencia.",
+        "La IA es el campo de la informática que desarrolla sistemas que aprenden de datos, reconocen patrones, comprenden lenguaje, razonan y toman decisiones.",
     },
     {
       id: "q2",
-      prompt: "¿Qué es el machine learning (aprendizaje automático)?",
-      options: [
-        "Programar a mano cada regla que debe seguir una computadora",
-        "Una máquina que reemplaza por completo a los programadores",
-        "Un enfoque donde los sistemas aprenden patrones a partir de datos, en lugar de seguir reglas escritas una por una",
-        "Un tipo de hardware especial para jugar videojuegos",
-      ],
-      correctIndex: 2,
+      kind: "true-false",
+      prompt:
+        "Una red neuronal aprende a partir de ejemplos: no hace falta que una persona escriba cada regla paso a paso.",
+      correct: true,
       explanation:
-        "En el aprendizaje automático el sistema detecta patrones en los datos y mejora con la experiencia, sin que alguien escriba todas las reglas.",
+        "La IA se entrena con muchos ejemplos y ajusta sus valores internos hasta reproducir las respuestas esperadas, en lugar de seguir reglas escritas.",
     },
     {
       id: "q3",
-      prompt: "¿Cuál de estos es un ejemplo de IA que usás en tu día a día?",
+      kind: "multiple-choice",
+      prompt: "¿Cuáles de estas características corresponden al software tradicional?",
       options: [
-        "Una calculadora básica",
-        "Las recomendaciones de series o música en las plataformas de streaming",
-        "Un reloj despertador analógico",
-        "Una linterna a pilas",
+        "Una persona escribe las reglas paso a paso",
+        "Aprende las reglas a partir de miles de ejemplos",
+        "Es exacto y siempre da lo mismo ante la misma entrada",
+        "Su resultado es aproximado y puede variar",
+        "Se lee el código para entender por qué dio ese resultado",
       ],
-      correctIndex: 1,
+      correctIndices: [0, 2, 4],
       explanation:
-        "Las plataformas de streaming aprenden de lo que mirás y escuchás para sugerirte contenido nuevo.",
+        "El software tradicional sigue reglas escritas por una persona, es exacto y se puede auditar leyendo el código. Aprender de ejemplos y dar resultados aproximados son rasgos de las redes neuronales.",
     },
     {
       id: "q4",
-      prompt: "¿Qué es un modelo de lenguaje, como los que usan ChatGPT, Claude o Gemini?",
+      kind: "single-choice",
+      prompt: "¿Cuál de estos problemas resuelve mejor una red neuronal que el software tradicional?",
       options: [
-        "Un diccionario digital con todas las palabras del idioma",
-        "Un traductor que solo funciona entre dos idiomas",
-        "Un corrector ortográfico automático",
-        "Un modelo entrenado con grandes cantidades de texto que genera respuestas prediciendo qué palabras siguen",
+        "Calcular el sueldo de un empleado",
+        "Sumar el total de una factura",
+        "Ordenar una lista de nombres alfabéticamente",
+        "Reconocer una cara en una foto",
       ],
       correctIndex: 3,
       explanation:
-        "Los modelos de lenguaje aprenden de enormes volúmenes de texto y generan respuestas calculando qué palabra es más probable a continuación.",
+        "Reconocer una cara es un problema sin reglas claras, ideal para una red neuronal. Calcular un sueldo tiene reglas claras y se resuelve con software tradicional.",
     },
     {
       id: "q5",
-      prompt: "¿Qué es un prompt?",
-      options: [
-        "La instrucción o consulta que le escribís a una IA para que genere una respuesta",
-        "El nombre del programa que ejecuta la IA",
-        "Una contraseña para entrar a una herramienta de IA",
-        "El tiempo que tarda una IA en responder",
-      ],
-      correctIndex: 0,
+      kind: "true-false",
+      prompt: "El software basado en IA reemplaza por completo al software tradicional.",
+      correct: false,
       explanation:
-        "El prompt es lo que le pedís a la IA. Cuanto más claro y específico, mejor suele ser el resultado.",
+        "La gran mayoría del software con IA no reemplaza al software tradicional: lo complementa. Esa combinación se llama sistema híbrido.",
     },
     {
       id: "q6",
-      prompt: "¿Qué significa que una IA “alucine”?",
+      kind: "multiple-choice",
+      prompt: "En Google Maps, ¿qué tareas resuelve la inteligencia artificial?",
       options: [
-        "Que se queda sin batería mientras responde",
-        "Que se niega a contestar preguntas difíciles",
-        "Que inventa información que suena convincente pero es falsa o no tiene sustento",
-        "Que genera imágenes con colores muy intensos",
+        "Mostrar el mapa",
+        "Predecir el tráfico",
+        "Trazar la ruta sobre el mapa",
+        "Estimar los tiempos de llegada",
       ],
-      correctIndex: 2,
+      correctIndices: [1, 3],
       explanation:
-        "Una alucinación es una respuesta inventada que parece correcta. Por eso conviene contrastar lo que dice la IA.",
+        "La IA predice el tráfico y estima tiempos. Mostrar el mapa y trazar rutas lo hace el software tradicional.",
     },
     {
       id: "q7",
-      prompt: "Una IA te da un dato importante para un trabajo. ¿Qué conviene hacer?",
+      kind: "single-choice",
+      prompt: "¿Qué parte de Netflix funciona con inteligencia artificial?",
       options: [
-        "Usarlo directamente, porque las IA nunca se equivocan",
-        "Pedirle a la misma IA que confirme que tiene razón",
-        "Compartirlo cuanto antes para ganar tiempo",
-        "Verificarlo en fuentes confiables antes de usarlo",
-      ],
-      correctIndex: 3,
-      explanation:
-        "Siempre hay que verificar los datos relevantes en fuentes confiables. Pedirle a la misma IA que se confirme a sí misma no alcanza.",
-    },
-    {
-      id: "q8",
-      prompt: "¿Cuál de estas afirmaciones sobre la IA es verdadera?",
-      options: [
-        "Es siempre neutral y objetiva",
-        "Puede reproducir los sesgos presentes en los datos con los que fue entrenada",
-        "No necesita datos para funcionar",
-        "Entiende el mundo exactamente igual que una persona",
+        "Cobrar la suscripción",
+        "Recomendar series y películas",
+        "Reproducir el video",
+        "Administrar las cuentas",
       ],
       correctIndex: 1,
       explanation:
-        "Si los datos de entrenamiento tienen sesgos, la IA puede reproducirlos. Por eso importa el criterio humano.",
+        "Las cuentas, los pagos y la reproducción son software tradicional. Las recomendaciones de series y películas son IA.",
+    },
+    {
+      id: "q8",
+      kind: "multiple-choice",
+      prompt: "¿Cuáles son los tres factores clave que explican el crecimiento de la IA?",
+      options: [
+        "Avances importantes en Deep Learning",
+        "La desaparición del software tradicional",
+        "El auge de Internet",
+        "La inversión en centros de datos",
+        "La reducción de la cantidad de datos generados",
+      ],
+      correctIndices: [0, 2, 3],
+      explanation:
+        "La IA creció gracias al auge de Internet (más datos), la inversión en centros de datos y los avances en Deep Learning.",
     },
     {
       id: "q9",
-      prompt: "¿Qué es la IA generativa?",
-      options: [
-        "La que solo clasifica datos en categorías",
-        "La que se usa únicamente para controlar máquinas industriales",
-        "La que crea contenido nuevo, como texto, imágenes, audio o código, a partir de lo que aprendió",
-        "La que genera electricidad para los centros de datos",
-      ],
-      correctIndex: 2,
+      kind: "true-false",
+      prompt:
+        "El paper “Attention is all you need”, de 2017, definió la arquitectura transformer, que usan hoy los modelos de IA.",
+      correct: true,
       explanation:
-        "La IA generativa produce contenido original a partir de patrones aprendidos: textos, imágenes, música, código y más.",
+        "Un grupo de 8 ingenieros lo publicó en 2017 y la arquitectura transformer es la base de los modelos actuales.",
     },
     {
       id: "q10",
-      prompt: "¿Cuál es la mejor forma de pensar la IA en el trabajo?",
-      options: [
-        "Como una herramienta que potencia tu criterio, sin reemplazarlo",
-        "Como un reemplazo total de las personas del equipo",
-        "Como una moda pasajera que conviene ignorar",
-        "Como un oráculo que siempre tiene la última palabra",
+      kind: "written",
+      prompt: "Explicá con tus palabras cómo aprende una inteligencia artificial.",
+      expectedAnswer:
+        "Aprende patrones a partir de grandes cantidades de datos: se entrena con ejemplos y ajusta sus valores internos hasta reproducir las respuestas esperadas.",
+      keywordGroups: [
+        ["dato", "ejemplo"],
+        ["patron", "aprend", "entren"],
       ],
-      correctIndex: 0,
       explanation:
-        "La IA rinde más cuando se usa como asistente: acelera tareas, pero las decisiones y la revisión final siguen siendo tuyas.",
+        "Para sumar el punto tenías que mencionar los datos o ejemplos y que la IA aprende o se entrena para detectar patrones.",
+    },
+    {
+      id: "q11",
+      kind: "written",
+      prompt: "¿Qué es un sistema híbrido? Dá un ejemplo de una aplicación que lo use.",
+      expectedAnswer:
+        "Es un software que combina software tradicional con inteligencia artificial. Por ejemplo, Uber usa software tradicional para el cobro y la tarifa, e IA para predecir la demanda y el tiempo de llegada.",
+      keywordGroups: [
+        ["tradicional"],
+        ["ia", "inteligencia", "red neuronal"],
+        ["uber", "instagram", "netflix", "google maps", "maps", "gmail"],
+      ],
+      explanation:
+        "Para sumar el punto tenías que nombrar el software tradicional, la IA y una aplicación de ejemplo, como Uber, Instagram, Netflix, Google Maps o Gmail.",
+    },
+    {
+      id: "q12",
+      kind: "written",
+      prompt: "¿Qué es Big Data y por qué es necesario para entrenar modelos de IA?",
+      expectedAnswer:
+        "Es la industria dedicada a recolectar, almacenar, procesar y analizar grandes volúmenes de datos. Sin esos datos sería imposible entrenar los modelos de IA actuales.",
+      keywordGroups: [
+        ["dato"],
+        ["entren", "model", "ia", "inteligencia"],
+      ],
+      explanation:
+        "Para sumar el punto tenías que mencionar los datos y su relación con el entrenamiento de los modelos de IA.",
     },
   ],
 });
