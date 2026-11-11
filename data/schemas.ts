@@ -72,7 +72,7 @@ export const courseClassSchema = z.object({
   summary: z.string().min(1),
   presentationPdf: z.string().startsWith("/").optional(),
   summaryDocument: downloadSchema.optional(),
-  assignmentDocument: downloadSchema.optional(),
+  assignments: z.array(downloadSchema).optional(),
   activity: activitySchema.optional(),
   game: gameSchema.optional(),
 });

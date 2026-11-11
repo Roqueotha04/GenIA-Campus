@@ -9,7 +9,8 @@ export function SiteHeader() {
         <Link href="/" aria-label="Generación IA, inicio">
           <Logo className="h-6 md:h-7" />
         </Link>
-        <Button href="/acceso" variant="inverse" size="sm">
+        {/* <Button href="/acceso" variant="inverse" size="sm"> */}
+        <Button href="/campus" variant="inverse" size="sm">
           Acceder
         </Button>
       </div>

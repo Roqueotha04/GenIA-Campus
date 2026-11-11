@@ -22,7 +22,7 @@ El clean code se prioriza **siempre**, por encima de la velocidad o la convenien
 - Usuarios, niveles, módulos y actividades viven en `data/` (tipados y validados con Zod al importarse).
 - La sesión es simulada: `SessionProvider` guarda el id del usuario en `localStorage` y `RequireSession` protege `/campus`. Las credenciales quedan en el bundle; es temporal y se reemplaza al pasar a backend (previsto: Supabase con auth, matrícula por clave, docentes editando su curso y archivos).
 - Los intentos del quiz se guardan en `localStorage` (solo las respuestas; el puntaje se calcula).
-- Solo Adultos · Módulo 1 (clase "Introducción a la IA"), Adultos · Módulo 2 (clase "Introducción a la automatización") y Nivel 3 · Módulo 1 (juego "Las tres preguntas") tienen contenido. El resto de los módulos son navegables pero muestran "Todavía no hay nada cargado". No cargar contenido en otros módulos sin que lo pida el dueño.
+- Solo Adultos · Módulo 1 (clases "Introducción a la IA" e "Introducción a los chatbots"), Adultos · Módulo 2 (clase "Introducción a la automatización") y Nivel 3 · Módulo 1 (juego "Las tres preguntas") tienen contenido. El resto de los módulos son navegables pero muestran "Todavía no hay nada cargado". No cargar contenido en otros módulos sin que lo pida el dueño.
 
 ## Stack
 Next.js 16 (App Router) + React 19 + Tailwind CSS 4 + TypeScript + Framer Motion 12 + Zod.
@@ -48,7 +48,7 @@ public/       logo-generacion-ia.png · material/ (PDFs de presentaciones)
 - Rutas: `/` landing · `/acceso` login · `/campus` niveles · `/campus/[nivel]` módulos · `/campus/[nivel]/[modulo]` lista de clases · `/campus/[nivel]/[modulo]/[clase]` presentación, resumen, juego y actividad.
 - Slugs de nivel: `nivel-1`, `nivel-2`, `nivel-3`, `adultos`. Módulos: número (niños 1–5, adultos 1–2).
 - `params` es una `Promise` en esta versión de Next: usar `await params`.
-- Estructura del contenido: nivel → módulo ("Módulo N") → clases. Cargar contenido nuevo = editar `data/levels.ts` (módulo → `classes`). Una clase puede tener `presentationPdf`, `summaryDocument`, `activity` y `game`. Los PDF/DOCX van en `public/material/`, los juegos HTML autocontenidos en `public/juegos/` (se embeben con iframe `sandbox="allow-scripts"`). `Contenido/` es la carpeta de entrega: lo que se usa se copia a `public/`.
+- Estructura del contenido: nivel → módulo ("Módulo N") → clases. Cargar contenido nuevo = editar `data/levels.ts` (módulo → `classes`). Una clase puede tener `presentationPdf`, `summaryDocument`, `assignments` (TPs), `activity` y `game`. Los PDF/DOCX van en `public/material/`, los juegos HTML autocontenidos en `public/juegos/` (se embeben con iframe `sandbox="allow-scripts"`). `Contenido/` es la carpeta de entrega: lo que se usa se copia a `public/`.
 - Componentes que usan hooks, `localStorage` o Framer Motion son Client Components (`"use client"`). El resto queda sin directiva.
 
 ## Componentes

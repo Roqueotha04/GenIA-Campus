@@ -77,10 +77,29 @@ export const levels = levelSchema.array().parse([
               "Qué es la inteligencia artificial, cómo aprende a partir de datos, en qué se diferencia del software tradicional y por qué creció tan rápido.",
             presentationPdf: "/material/adultos-modulo-1-clase-1-presentacion.pdf",
             summaryDocument: {
-              label: "Resumen de la clase",
+              label: "Resumen Clase 1",
               path: "/material/adultos-modulo-1-clase-1-resumen.docx",
             },
             activity: quizIaAdultos,
+          },
+          {
+            number: 2,
+            title: "Introducción a los chatbots",
+            summary:
+              "Qué es un chatbot, cómo evolucionaron desde ELIZA hasta los LLMs, en qué se diferencian los bots por reglas de los basados en modelos de IA y cómo escribir un buen prompt.",
+            presentationPdf: "/material/adultos-modulo-1-clase-2-presentacion.pdf",
+            summaryDocument: {
+              label: "Resumen Clase 2",
+              path: "/material/adultos-modulo-1-clase-2-resumen.pdf",
+            },
+            assignments: [
+              { label: "TP 1", path: "/material/adultos-modulo-1-clase-2-tp-1.pdf" },
+              { label: "TP 2", path: "/material/adultos-modulo-1-clase-2-tp-2.pdf" },
+              {
+                label: "Resolución TP 2",
+                path: "/material/adultos-modulo-1-clase-2-resolucion-tp-2.pdf",
+              },
+            ],
           },
         ],
       },
@@ -100,13 +119,15 @@ export const levels = levelSchema.array().parse([
               "Qué es un flujo de automatización, cuáles son sus componentes (disparadores, acciones y resultados), cómo se combinan con la IA y en qué se diferencian de la programación tradicional.",
             presentationPdf: "/material/adultos-modulo-2-clase-1-presentacion.pdf",
             summaryDocument: {
-              label: "Resumen de la clase",
+              label: "Resumen Clase 1",
               path: "/material/adultos-modulo-2-clase-1-resumen.docx",
             },
-            assignmentDocument: {
-              label: "TP Clase 1 - Primer escenario",
-              path: "/material/adultos-modulo-2-clase-1-tp.pdf",
-            },
+            assignments: [
+              {
+                label: "TP Clase 1 - Primer escenario",
+                path: "/material/adultos-modulo-2-clase-1-tp.pdf",
+              },
+            ],
             activity: quizAutomatizacionesAdultos,
           },
         ],

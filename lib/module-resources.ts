@@ -3,7 +3,7 @@ import { buildModuleHref, formatNumber } from "@/lib/catalog";
 
 export type ResourceKind = "general" | "notices" | "activity" | "game" | "assignment" | "presentation" | "summary";
 
-export type ModuleSectionId = "general" | "activities" | "presentations" | "summaries";
+export type ModuleSectionId = "general" | "activities" | "assignments" | "presentations" | "summaries";
 
 export interface ModuleResource {
   kind: ResourceKind;
@@ -59,16 +59,19 @@ function listActivityResources(moduleHref: string, classes: CourseClass[]): Modu
         isDownload: false,
       });
     }
-    if (courseClass.assignmentDocument) {
-      resources.push({
-        kind: "assignment",
-        label: courseClass.assignmentDocument.label,
-        href: courseClass.assignmentDocument.path,
-        isDownload: true,
-      });
-    }
     return resources;
   });
+}
+
+function listAssignmentResources(classes: CourseClass[]): ModuleResource[] {
+  return classes.flatMap((courseClass) =>
+    (courseClass.assignments ?? []).map((document) => ({
+      kind: "assignment" as const,
+      label: document.label,
+      href: document.path,
+      isDownload: true,
+    })),
+  );
 }
 
 function listPresentationResources(
@@ -104,7 +107,7 @@ function listSummaryResources(classes: CourseClass[]): ModuleResource[] {
       ? [
           {
             kind: "summary" as const,
-            label: buildClassLabel(courseClass),
+            label: courseClass.summaryDocument.label,
             href: courseClass.summaryDocument.path,
             isDownload: true,
           },
@@ -129,6 +132,12 @@ export function buildModuleSections(level: Level, courseModule: CourseModule): M
       title: "Actividades",
       emptyMessage: "Todavía no hay actividades. Aparecen cuando el docente las cargue.",
       resources: listActivityResources(moduleHref, classes),
+    },
+    {
+      id: "assignments",
+      title: "TPs",
+      emptyMessage: "Todavía no hay TPs. Aparecen cuando el docente los cargue.",
+      resources: listAssignmentResources(classes),
     },
     {
       id: "presentations",

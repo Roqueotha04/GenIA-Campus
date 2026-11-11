@@ -19,10 +19,12 @@ export function Hero() {
           </h1>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
             Cursos de inteligencia artificial para niños y adultos, organizados en niveles,
-            módulos y clases. Ingresá con el usuario que te dio tu docente.
+            módulos y clases.
+            {/* Ingresá con el usuario que te dio tu docente. */}
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <Button href="/acceso" variant="inverse">
+            {/* <Button href="/acceso" variant="inverse"> */}
+            <Button href="/campus" variant="inverse">
               Acceder al campus
             </Button>
             <Button href="#niveles" variant="outlineOnDark">

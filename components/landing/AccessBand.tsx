@@ -10,9 +10,10 @@ export function AccessBand() {
         <SectionHeading
           tone="onDark"
           title="Acceso al campus"
-          accent="Con el usuario que te dio tu docente."
+          // accent="Con el usuario que te dio tu docente."
         />
-        <Button href="/acceso" variant="inverse">
+        {/* <Button href="/acceso" variant="inverse"> */}
+        <Button href="/campus" variant="inverse">
           Acceder al campus
         </Button>
       </Reveal>
