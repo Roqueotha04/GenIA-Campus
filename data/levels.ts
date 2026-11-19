@@ -101,6 +101,15 @@ export const levels = levelSchema.array().parse([
               },
             ],
           },
+          {
+            number: 3,
+            title: "Google Drive y conectores",
+            summary:
+              "Qué es un conector, qué le permite hacer a un asistente de IA y qué cuidados implica darle acceso a tus archivos. Práctica: de una carpeta de Google Drive a un PDF generado por Claude.",
+            assignments: [
+              { label: "TP 3", path: "/material/adultos-modulo-1-clase-3-tp-3.docx" },
+            ],
+          },
         ],
       },
       {
