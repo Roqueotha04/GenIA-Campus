@@ -36,7 +36,6 @@ export function LevelView({ level, availability }: LevelViewProps) {
               key={courseModule.number}
               levelSlug={level.slug}
               courseModule={courseModule}
-              availability={availability[courseModule.number]}
             />
           ))}
         </Carousel>

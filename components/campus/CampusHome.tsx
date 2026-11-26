@@ -7,13 +7,10 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { MyCoursesSection } from "@/components/course/MyCoursesSection";
 import type { CurrentProfile } from "@/lib/auth/current-profile";
 import type { CourseSummary } from "@/lib/courses/course-access";
-import type { ModuleAvailability } from "@/lib/course-content/course-content-types";
 import { CampusBanner } from "./CampusBanner";
 import { LevelModuleList } from "./LevelModuleList";
 
-type AvailabilityByLevel = Record<string, Record<number, ModuleAvailability>>;
-
-function buildLevelItems(availabilityByLevel: AvailabilityByLevel): AccordionItem[] {
+function buildLevelItems(): AccordionItem[] {
   return levelsWithFeaturedFirst.map((level) => ({
     id: level.slug,
     title: (
@@ -22,7 +19,7 @@ function buildLevelItems(availabilityByLevel: AvailabilityByLevel): AccordionIte
         {level.name}
       </span>
     ),
-    content: <LevelModuleList level={level} availability={availabilityByLevel[level.slug]} />,
+    content: <LevelModuleList level={level} />,
   }));
 }
 
@@ -33,10 +30,9 @@ function buildGreeting(profile: CurrentProfile): string {
 interface CampusHomeProps {
   profile: CurrentProfile;
   myCourses: CourseSummary[];
-  availabilityByLevel?: AvailabilityByLevel;
 }
 
-export function CampusHome({ profile, myCourses, availabilityByLevel = {} }: CampusHomeProps) {
+export function CampusHome({ profile, myCourses }: CampusHomeProps) {
   return (
     <Section>
       <Reveal>
@@ -51,7 +47,7 @@ export function CampusHome({ profile, myCourses, availabilityByLevel = {} }: Cam
       <Reveal delay={0.12} className="mt-8">
         <SectionHeading title="Niveles" />
         <div className="mt-3">
-          <Accordion items={buildLevelItems(availabilityByLevel)} />
+          <Accordion items={buildLevelItems()} />
         </div>
       </Reveal>
     </Section>
