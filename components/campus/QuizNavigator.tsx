@@ -7,6 +7,7 @@ interface QuizNavigatorProps {
   currentIndex: number;
   onSelectQuestion: (index: number) => void;
   onFinish: () => void;
+  isFinishing?: boolean;
 }
 
 function buildQuestionButtonClasses(isCurrent: boolean, isAnswered: boolean) {
@@ -23,6 +24,7 @@ export function QuizNavigator({
   currentIndex,
   onSelectQuestion,
   onFinish,
+  isFinishing = false,
 }: QuizNavigatorProps) {
   const answeredCount = answers.filter((answer) => answer !== null).length;
   const pendingCount = answers.length - answeredCount;
@@ -55,7 +57,7 @@ export function QuizNavigator({
       </p>
       <QuizTimer />
       <div>
-        <ActionButton className="w-full" onClick={onFinish} disabled={pendingCount > 0}>
+        <ActionButton className="w-full" onClick={onFinish} disabled={pendingCount > 0 || isFinishing}>
           Terminar intento
         </ActionButton>
         {pendingCount > 0 && (

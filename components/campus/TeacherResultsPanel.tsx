@@ -2,13 +2,13 @@
 
 import { sampleResults } from "@/data/sample-results";
 import type { Activity } from "@/data/schemas";
-import { useSession } from "@/hooks/useSession";
+import { useCurrentProfile } from "@/hooks/useCurrentProfile";
 import { Section } from "@/components/ui/Section";
 
 export function TeacherResultsPanel({ activity }: { activity: Activity }) {
-  const { user } = useSession();
+  const profile = useCurrentProfile();
 
-  if (user?.role !== "docente") return null;
+  if (profile.role === "alumno") return null;
 
   return (
     <Section className="py-8 md:py-12">

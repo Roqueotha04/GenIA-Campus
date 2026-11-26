@@ -1,13 +1,5 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  email: z.email(),
-  password: z.string().min(1),
-  role: z.enum(["alumno", "docente"]),
-});
-
 const baseQuestionShape = {
   id: z.string().min(1),
   prompt: z.string().min(1),
@@ -109,7 +101,6 @@ export const sampleResultSchema = z.object({
   date: z.string().min(1),
 });
 
-export type User = z.infer<typeof userSchema>;
 export type Question = z.infer<typeof questionSchema>;
 export type Notice = z.infer<typeof noticeSchema>;
 export type Activity = z.infer<typeof activitySchema>;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Activity } from "@/data/schemas";
 import { useQuizResult } from "@/hooks/useQuizResult";
-import { useSession } from "@/hooks/useSession";
+import { useCurrentProfile } from "@/hooks/useCurrentProfile";
 import type { QuizAnswer } from "@/lib/quiz-scoring";
 import { ActivityIntro } from "./ActivityIntro";
 import { Quiz } from "./Quiz";
@@ -15,8 +15,8 @@ interface ActivityPanelProps {
 }
 
 export function ActivityPanel({ activity, moduleHref }: ActivityPanelProps) {
-  const { user } = useSession();
-  const { answers, saveAnswers } = useQuizResult(user?.id ?? "", activity);
+  const profile = useCurrentProfile();
+  const { answers, saveAnswers } = useQuizResult(profile.id, activity);
   const [isTaking, setIsTaking] = useState(false);
 
   const handleFinish = (finalAnswers: QuizAnswer[]) => {
@@ -25,7 +25,7 @@ export function ActivityPanel({ activity, moduleHref }: ActivityPanelProps) {
   };
 
   if (isTaking) {
-    return <Quiz activity={activity} onFinish={handleFinish} />;
+    return <Quiz questions={activity.questions} onFinish={handleFinish} />;
   }
 
   if (answers) {
@@ -39,5 +39,13 @@ export function ActivityPanel({ activity, moduleHref }: ActivityPanelProps) {
     );
   }
 
-  return <ActivityIntro activity={activity} onStart={() => setIsTaking(true)} />;
+  return (
+    <ActivityIntro
+      title={activity.title}
+      description={activity.description}
+      questionCount={activity.questions.length}
+      passingScore={activity.passingScore}
+      onStart={() => setIsTaking(true)}
+    />
+  );
 }

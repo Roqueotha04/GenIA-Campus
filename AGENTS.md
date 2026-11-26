@@ -18,14 +18,24 @@ El clean code se prioriza **siempre**, por encima de la velocidad o la convenien
 - Si una solución rápida ensucia el código, no se usa: se busca la versión limpia.
 
 ## Estado del proyecto
-**MVP de demostración con datos estáticos** para mostrar la idea a los dueños. No hay backend ni base de datos todavía.
-- Usuarios, niveles, módulos y actividades viven en `data/` (tipados y validados con Zod al importarse).
-- La sesión es simulada: `SessionProvider` guarda el id del usuario en `localStorage` y `RequireSession` protege `/campus`. Las credenciales quedan en el bundle; es temporal y se reemplaza al pasar a backend (previsto: Supabase con auth, matrícula por clave, docentes editando su curso y archivos).
-- Los intentos del quiz se guardan en `localStorage` (solo las respuestas; el puntaje se calcula).
-- Solo Adultos · Módulo 1 (clases "Introducción a la IA", "Introducción a los chatbots", "Google Drive y conectores" y "Agentes de IA y automatización"), Adultos · Módulo 2 (clase "Introducción a la automatización") y Nivel 3 · Módulo 1 (juego "Las tres preguntas") tienen contenido. El resto de los módulos son navegables pero muestran "Todavía no hay nada cargado". No cargar contenido en otros módulos sin que lo pida el dueño.
+**Campus dinámico sobre Supabase** (Auth + Postgres con RLS + Storage + Realtime). Foco en Adultos.
+- **Usuarios**: no hay registro público. El admin crea las cuentas desde `/campus/admin/usuarios` (Supabase Auth + fila en `profiles` con el rol `admin` | `docente` | `alumno`). Una cuenta sin `profile` no puede usar nada. Primer admin: `pnpm create-admin --email … --name "…" --password "…"`.
+- **Cursos** = nivel + módulo (`courses.level_slug` + `module_number`). Los crea el admin, les asigna docentes y los publica. El alumno se inscribe con la **clave del curso**.
+- **Contenido del curso** (secciones, archivos, links, juegos, entregas, avisos, cuestionarios) lo cargan docentes/admin desde `/campus/[nivel]/[modulo]/gestionar`. Los alumnos lo ven en vivo (Realtime).
+- Si un módulo no tiene curso en la base, se muestra el contenido estático de `data/levels.ts` (niveles de niños). No cargar contenido estático nuevo sin que lo pida el dueño.
+- **Juegos HTML**: se cargan a mano en `public/juegos/` y se registran en `data/games.ts`; el docente los agrega a una sección.
+
+## Supabase
+- Esquema y políticas: `supabase/migrations/*.sql` (se aplican en orden en el SQL Editor o con `pnpm db:push`). Tipos: `types/database.ts` (regenerar con `pnpm db:types` si el proyecto está enlazado).
+- Clientes: `lib/supabase/server-client.ts` (Server Components/Actions, respeta RLS), `browser-client.ts` (Realtime y subidas), `admin-client.ts` (clave secreta, solo server, solo cuando RLS no alcanza: crear usuarios, leer cuestionarios para puntuar, guardar intentos).
+- `proxy.ts` refresca la sesión y redirige a `/acceso` sin sesión. La autorización real se hace en el server (`requireProfile`, `requireRole`, `getCourseAccess`) y en RLS.
+- En `courses` nunca `select("*")`: la columna `enrollment_key` no es legible. Usar `COURSE_SUMMARY_COLUMNS` y los rpc `course_enrollment_key` / `regenerate_enrollment_key` / `enroll_with_key`.
+- Los alumnos no leen `quizzes` (para no ver respuestas): el server arma preguntas sin claves y puntúa.
+- Archivos: buckets privados `course-materials` y `submissions` (50 MB por archivo). Se suben **directo del navegador** con URL firmada (`createSignedUploadUrl` + `uploadToSignedUrl`), nunca por Server Action. Se descargan con URLs firmadas.
+- Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (esta última nunca con prefijo `NEXT_PUBLIC_`).
 
 ## Stack
-Next.js 16 (App Router) + React 19 + Tailwind CSS 4 + TypeScript + Framer Motion 12 + Zod.
+Next.js 16 (App Router) + React 19 + Tailwind CSS 4 + TypeScript + Framer Motion 12 + Zod + Supabase (`@supabase/ssr`).
 - Versiones congeladas: nunca downgradear Next/React/Tailwind/TS. Si una librería nueva puede dar problemas de compatibilidad, verificar peer deps antes de agregarla.
 - Gestor de paquetes: **pnpm** (fijado en `package.json` → `packageManager`). No introducir lockfiles de `npm`/`yarn`.
 - Tailwind 4: el tema se define en `app/globals.css` con `@theme inline`. No hay `tailwind.config.ts`.
@@ -37,19 +47,21 @@ Next.js 16 (App Router) + React 19 + Tailwind CSS 4 + TypeScript + Framer Motion
 Las rutas (`app/`) **solo componen**: validan params, llaman a `notFound()` y renderizan componentes. La lógica vive en `components/`, `hooks/` y `lib/`.
 
 ```
-app/          page (landing) · acceso · campus/[nivel]/[modulo] · layout · not-found · globals.css
-components/   ui/ · layout/ · landing/ · campus/ · providers/
-data/         schemas.ts · users.ts · levels.ts · quiz-ia-adultos.ts · sample-results.ts
-hooks/        useSession · useHydrated · useLocalStorage · useQuizResult
-lib/          auth · catalog · level-accent · quiz-scoring
-public/       logo-generacion-ia.png · material/ (PDFs de presentaciones)
+app/          page (landing) · acceso (login, recuperar, nueva-clave) · auth/confirm · campus/…
+components/   ui/ · layout/ · landing/ · auth/ · campus/ (estático) · course/ (alumno) · teacher/ (gestionar) · assignments/ · quizzes/ · admin/ · providers/
+data/         schemas.ts · levels.ts · games.ts · quiz-*-adultos.ts (estáticos)
+hooks/        useCurrentProfile · useCourseRealtime · useQuizResult · …
+lib/          supabase/ · auth/ · courses/ · course-content/ · teacher/ · assignments/ · quizzes/ · admin/ · storage/ · forms/ · catalog · quiz-scoring
+supabase/     migrations/ (esquema, RLS, storage, realtime)
+scripts/      create-admin.mts
+public/       logo · juegos/ (HTML) · material/ (contenido estático viejo)
 ```
 
-- Rutas: `/` landing · `/acceso` login · `/campus` niveles · `/campus/[nivel]` módulos · `/campus/[nivel]/[modulo]` lista de clases · `/campus/[nivel]/[modulo]/[clase]` presentación, resumen, juego y actividad.
+- Rutas: `/` landing · `/acceso` login · `/campus` mis cursos + niveles · `/campus/[nivel]` módulos · `/campus/[nivel]/[modulo]` curso (dinámico si existe en la base; si no, estático) · `…/gestionar` (docente/admin) · `…/gestionar/quizzes` · `…/entregas/[id]` · `…/quiz/[quizId]` · `…/juegos/[slug]` · `…/avisos` · `/campus/admin` (usuarios y cursos).
 - Slugs de nivel: `nivel-1`, `nivel-2`, `nivel-3`, `adultos`. Módulos: número (niños 1–5, adultos 1–2).
-- `params` es una `Promise` en esta versión de Next: usar `await params`.
-- Estructura del contenido: nivel → módulo ("Módulo N") → clases. Cargar contenido nuevo = editar `data/levels.ts` (módulo → `classes`). Una clase puede tener `presentationPdf`, `summaryDocument`, `assignments` (TPs), `activity` y `game`. Los PDF/DOCX van en `public/material/`, los juegos HTML autocontenidos en `public/juegos/` (se embeben con iframe `sandbox="allow-scripts"`). `Contenido/` es la carpeta de entrega: lo que se usa se copia a `public/`.
-- Componentes que usan hooks, `localStorage` o Framer Motion son Client Components (`"use client"`). El resto queda sin directiva.
+- `params` y `searchParams` son `Promise` en esta versión de Next: usar `await`.
+- Mutaciones: Server Actions en `lib/**` con `"use server"`, validación Zod y verificación de permisos al inicio; `revalidatePath` de lo que cambia. Formularios con `useActionState` + `FormStateMessage` + `SubmitButton` (o `onSubmit` cuando hay que conservar lo escrito ante errores).
+- Componentes que usan hooks, `localStorage`, Realtime o Framer Motion son Client Components (`"use client"`). El resto queda sin directiva.
 
 ## Componentes
 - **Reutilizar siempre los componentes ya programados** (`Section`, `SectionHeading`, `Button`/`ActionButton`, `Carousel`, `Eyebrow`, `Reveal`, `StatusDot`). Crear uno nuevo solo si realmente no existe el que se necesita.

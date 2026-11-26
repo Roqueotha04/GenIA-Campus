@@ -1,4 +1,4 @@
-import type { Question } from "@/data/schemas";
+import type { PlayableQuestion } from "@/lib/quizzes/playable-question";
 import type { QuizAnswer } from "@/lib/quiz-scoring";
 import { QuizChoiceInput } from "./QuizChoiceInput";
 import { QuizWrittenInput } from "./QuizWrittenInput";
@@ -6,7 +6,7 @@ import { QuizWrittenInput } from "./QuizWrittenInput";
 const trueFalseOptions = ["Verdadero", "Falso"];
 
 interface QuizAnswerInputProps {
-  question: Question;
+  question: PlayableQuestion;
   answer: QuizAnswer | null;
   onChange: (answer: QuizAnswer | null) => void;
 }

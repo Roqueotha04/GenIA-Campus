@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { MotionProvider } from "@/components/providers/MotionProvider";
-import { SessionProvider } from "@/components/providers/SessionProvider";
 
 const headingFont = Geist({
   subsets: ["latin"],
@@ -42,9 +41,7 @@ export default function RootLayout({
       className={`${headingFont.variable} ${bodyFont.variable} ${accentFont.variable} h-full antialiased`}
     >
       <body className="min-h-full font-body">
-        <MotionProvider>
-          <SessionProvider>{children}</SessionProvider>
-        </MotionProvider>
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

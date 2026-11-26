@@ -1,8 +1,8 @@
-import type { Question } from "@/data/schemas";
+import type { PlayableQuestion } from "@/lib/quizzes/playable-question";
 import type { QuizAnswer } from "@/lib/quiz-scoring";
 import { QuizAnswerInput } from "./QuizAnswerInput";
 
-const answerHints: Record<Question["kind"], string> = {
+const answerHints: Record<PlayableQuestion["kind"], string> = {
   "true-false": "Elegí verdadero o falso:",
   "single-choice": "Seleccioná una opción:",
   "multiple-choice": "Seleccioná todas las opciones correctas:",
@@ -11,7 +11,7 @@ const answerHints: Record<Question["kind"], string> = {
 
 interface QuizQuestionCardProps {
   number: number;
-  question: Question;
+  question: PlayableQuestion;
   answer: QuizAnswer | null;
   onChange: (answer: QuizAnswer | null) => void;
 }
