@@ -20,29 +20,29 @@ export function QuizResult({ activity, answers, moduleHref, onRetry }: QuizResul
 
   return (
     <div>
-      <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+      <h2 className="font-heading text-lg font-semibold text-foreground">
         Tu resultado
       </h2>
-      <div className="mt-8 flex flex-col gap-10 border border-line bg-surface p-8 md:p-12">
-        <div className="flex flex-col gap-8 md:flex-row md:items-center md:gap-14">
+      <div className="mt-3 flex flex-col gap-6 border border-line bg-surface p-5 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-8">
           <p
-            className={`font-heading text-7xl font-semibold tracking-tight md:text-8xl ${toneClass}`}
+            className={`font-heading text-5xl font-semibold tracking-tight md:text-6xl ${toneClass}`}
           >
             {score}
-            <span className="text-4xl text-muted md:text-5xl">/{total}</span>
+            <span className="text-2xl text-muted md:text-3xl">/{total}</span>
           </p>
           <div className="md:max-w-md">
-            <p className={`font-accent text-4xl italic ${toneClass}`}>
+            <p className={`font-heading text-xl font-semibold ${toneClass}`}>
               {passed ? "Aprobado" : "Todavía no alcanza"}
             </p>
-            <p className="mt-3 text-base leading-relaxed text-muted">
+            <p className="mt-1 text-sm leading-relaxed text-muted">
               {passed
                 ? `Superaste el mínimo de ${activity.passingScore} respuestas correctas.`
                 : `Necesitás ${activity.passingScore} respuestas correctas para aprobar. Repasá el detalle y volvé a intentarlo.`}
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-4 border-t border-line pt-8">
+        <div className="flex flex-wrap gap-3 border-t border-line pt-5">
           <ActionButton onClick={onRetry}>Volver a intentar</ActionButton>
           <ActionButton variant="outline" onClick={() => setIsDetailVisible(!isDetailVisible)}>
             {isDetailVisible ? "Ocultar respuestas" : "Ver respuestas"}
@@ -53,11 +53,11 @@ export function QuizResult({ activity, answers, moduleHref, onRetry }: QuizResul
         </div>
       </div>
       {isDetailVisible && (
-        <div className="mt-12">
-          <h3 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+        <div className="mt-8">
+          <h3 className="font-heading text-lg font-semibold text-foreground">
             Detalle de tus respuestas
           </h3>
-          <ol className="mt-8 flex flex-col gap-5">
+          <ol className="mt-3 flex flex-col gap-3">
             {activity.questions.map((question, index) => (
               <QuizReviewItem
                 key={question.id}

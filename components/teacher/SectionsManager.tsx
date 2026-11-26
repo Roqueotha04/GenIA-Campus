@@ -1,7 +1,7 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { ManagedSection } from "@/lib/teacher/load-course-management";
 import { SectionCard } from "./SectionCard";
-import { SectionCreateForm } from "./SectionCreateForm";
+import { SectionCreateDialog } from "./SectionCreateDialog";
 
 interface SectionsManagerProps {
   courseId: string;
@@ -11,11 +11,16 @@ interface SectionsManagerProps {
 export function SectionsManager({ courseId, sections }: SectionsManagerProps) {
   return (
     <div>
-      <SectionHeading title="Secciones" eyebrow="Contenido" />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeading title="Contenido" />
+        <SectionCreateDialog courseId={courseId} />
+      </div>
       {sections.length === 0 ? (
-        <p className="mt-8 text-muted">Todavía no hay secciones. Creá la primera, por ejemplo &quot;Clase 1&quot;.</p>
+        <p className="mt-6 text-sm text-muted">
+          Todavía no hay secciones. Agregá la primera, por ejemplo &quot;Clase 1&quot;.
+        </p>
       ) : (
-        <ol className="mt-8 space-y-6">
+        <ol className="mt-6 space-y-4">
           {sections.map((section, index) => (
             <SectionCard
               key={section.id}
@@ -26,10 +31,6 @@ export function SectionsManager({ courseId, sections }: SectionsManagerProps) {
           ))}
         </ol>
       )}
-      <div className="mt-8 border border-line bg-surface p-5 md:p-8">
-        <p className="mb-4 font-medium text-foreground">Nueva sección</p>
-        <SectionCreateForm courseId={courseId} />
-      </div>
     </div>
   );
 }

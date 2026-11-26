@@ -55,7 +55,7 @@ export function QuizTaker({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {previewNotice && <FormAlert tone="success" message={previewNotice} />}
       {isTaking ? (
         <Quiz questions={questions} onFinish={handleFinish} isFinishing={isPending} errorMessage={errorMessage} />

@@ -12,7 +12,7 @@ export function NewPasswordForm() {
   const [state, formAction] = useActionState(updatePassword, idleFormState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} className="flex flex-col gap-4">
       <TextField
         label="Clave nueva"
         name="password"

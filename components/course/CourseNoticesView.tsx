@@ -17,9 +17,9 @@ interface CourseNoticesViewProps {
 
 export function CourseNoticesView({ course, levelName, notices }: CourseNoticesViewProps) {
   return (
-    <Section className="py-8 md:py-12">
+    <Section>
       <CourseBreadcrumb course={course} levelName={levelName} currentLabel="Avisos" />
-      <div className="flex flex-wrap items-end justify-between gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <SectionHeading
           level={1}
           eyebrow={`${levelName} · Módulo ${course.module_number}`}
@@ -31,7 +31,7 @@ export function CourseNoticesView({ course, levelName, notices }: CourseNoticesV
           Volver al módulo
         </Button>
       </div>
-      <Reveal delay={0.1} className="mt-10">
+      <Reveal delay={0.1} className="mt-6">
         <NoticeBoard
           notices={notices.map((notice) => ({
             title: notice.title,

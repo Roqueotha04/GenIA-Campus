@@ -11,13 +11,13 @@ interface QuestionsManagerProps {
 export function QuestionsManager({ quizId, questions }: QuestionsManagerProps) {
   return (
     <div>
-      <SectionHeading title="Preguntas" eyebrow="Contenido" />
+      <SectionHeading title="Preguntas" />
       {questions.length === 0 ? (
-        <p className="mt-8 text-muted">
+        <p className="mt-3 text-sm text-muted">
           Todavía no hay preguntas. Agregá la primera para poder publicar el cuestionario.
         </p>
       ) : (
-        <ol className="mt-8 space-y-4">
+        <ol className="mt-3 space-y-2">
           {questions.map((question, index) => (
             <QuestionItem
               key={question.id}
@@ -30,8 +30,8 @@ export function QuestionsManager({ quizId, questions }: QuestionsManagerProps) {
           ))}
         </ol>
       )}
-      <div className="mt-8 border border-line bg-surface p-5 md:p-8">
-        <p className="mb-4 font-medium text-foreground">Nueva pregunta</p>
+      <div className="mt-4 border border-line bg-surface p-4 md:p-5">
+        <p className="mb-3 text-sm font-semibold text-foreground">Nueva pregunta</p>
         <QuestionEditor key={questions.length} quizId={quizId} />
       </div>
     </div>

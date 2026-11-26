@@ -107,6 +107,8 @@ export type Database = {
           url: string | null;
           game_slug: string | null;
           quiz_id: string | null;
+          assignment_id: string | null;
+          forum_id: string | null;
           mime_type: string | null;
           size_bytes: number | null;
           position: number;
@@ -123,6 +125,8 @@ export type Database = {
           url?: string | null;
           game_slug?: string | null;
           quiz_id?: string | null;
+          assignment_id?: string | null;
+          forum_id?: string | null;
           mime_type?: string | null;
           size_bytes?: number | null;
           position?: number;
@@ -134,6 +138,8 @@ export type Database = {
           ForeignKey<"section_id", "sections">,
           ForeignKey<"course_id", "courses">,
           ForeignKey<"quiz_id", "quizzes">,
+          ForeignKey<"assignment_id", "assignments">,
+          ForeignKey<"forum_id", "forums">,
           ForeignKey<"created_by", "profiles">,
         ];
       };
@@ -148,7 +154,7 @@ export type Database = {
           attachment_name: string | null;
           due_at: string | null;
           max_grade: number;
-          allow_late: boolean;
+          cutoff_at: string | null;
           created_by: string | null;
           created_at: string;
         };
@@ -162,7 +168,7 @@ export type Database = {
           attachment_name?: string | null;
           due_at?: string | null;
           max_grade?: number;
-          allow_late?: boolean;
+          cutoff_at?: string | null;
           created_by?: string | null;
           created_at?: string;
         };
@@ -243,6 +249,7 @@ export type Database = {
           passing_score: number;
           questions: Json;
           is_published: boolean;
+          section_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -254,11 +261,92 @@ export type Database = {
           passing_score?: number;
           questions?: Json;
           is_published?: boolean;
+          section_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["quizzes"]["Insert"]>;
-        Relationships: [ForeignKey<"course_id", "courses">];
+        Relationships: [ForeignKey<"course_id", "courses">, ForeignKey<"section_id", "sections">];
+      };
+      forums: {
+        Row: {
+          id: string;
+          section_id: string;
+          course_id: string;
+          title: string;
+          intro: string;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          section_id: string;
+          course_id?: string;
+          title: string;
+          intro?: string;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["forums"]["Insert"]>;
+        Relationships: [
+          ForeignKey<"section_id", "sections">,
+          ForeignKey<"course_id", "courses">,
+          ForeignKey<"created_by", "profiles">,
+        ];
+      };
+      forum_topics: {
+        Row: {
+          id: string;
+          forum_id: string;
+          course_id: string;
+          author_id: string | null;
+          author_name: string;
+          title: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          forum_id: string;
+          course_id?: string;
+          author_id?: string | null;
+          author_name?: string;
+          title: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["forum_topics"]["Insert"]>;
+        Relationships: [
+          ForeignKey<"forum_id", "forums">,
+          ForeignKey<"course_id", "courses">,
+          ForeignKey<"author_id", "profiles">,
+        ];
+      };
+      forum_posts: {
+        Row: {
+          id: string;
+          topic_id: string;
+          course_id: string;
+          author_id: string | null;
+          author_name: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          topic_id: string;
+          course_id?: string;
+          author_id?: string | null;
+          author_name?: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["forum_posts"]["Insert"]>;
+        Relationships: [
+          ForeignKey<"topic_id", "forum_topics">,
+          ForeignKey<"course_id", "courses">,
+          ForeignKey<"author_id", "profiles">,
+        ];
       };
       quiz_attempts: {
         Row: {
@@ -305,7 +393,7 @@ export type Database = {
     };
     Enums: {
       user_role: "admin" | "docente" | "alumno";
-      resource_kind: "file" | "link" | "game" | "quiz";
+      resource_kind: "file" | "link" | "game" | "quiz" | "assignment" | "forum";
     };
     CompositeTypes: { [_ in never]: never };
   };

@@ -23,15 +23,13 @@ export function LevelView({ level, availability }: LevelViewProps) {
       <Reveal>
         <SectionHeading
           level={1}
-          eyebrow="Nivel"
           title={level.name}
-          accent="Elegí tu módulo."
           subtitle={
-            isEmpty ? "Todavía no hay contenido cargado en este nivel." : level.description
+            isEmpty ? "Todavía no hay contenido en este nivel. Aparece acá cuando el docente lo publique." : level.description
           }
         />
       </Reveal>
-      <Reveal delay={0.1} className="mt-12">
+      <Reveal delay={0.1} className="mt-6">
         <Carousel columns={3}>
           {level.modules.map((courseModule) => (
             <ModuleCard

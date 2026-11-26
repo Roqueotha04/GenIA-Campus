@@ -11,7 +11,7 @@ interface QuizNavigatorProps {
 }
 
 function buildQuestionButtonClasses(isCurrent: boolean, isAnswered: boolean) {
-  const base = "h-12 text-base font-medium transition-colors";
+  const base = "h-10 text-sm font-medium transition-colors";
   const fill = isAnswered
     ? "bg-navy text-white"
     : "bg-surface text-foreground hover:bg-navy/5";
@@ -32,12 +32,12 @@ export function QuizNavigator({
   return (
     <aside
       aria-label="Navegación por el cuestionario"
-      className="order-first flex flex-col gap-8 border border-line bg-surface p-6 md:p-8 lg:sticky lg:top-6 lg:order-last"
+      className="order-first flex flex-col gap-5 border border-line bg-surface p-4 md:p-5 lg:sticky lg:top-6 lg:order-last"
     >
-      <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">
+      <h2 className="font-heading text-base font-semibold text-foreground">
         Navegación por el cuestionario
       </h2>
-      <ol className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-3">
+      <ol className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] gap-2">
         {answers.map((answer, index) => (
           <li key={index}>
             <button
@@ -52,7 +52,7 @@ export function QuizNavigator({
           </li>
         ))}
       </ol>
-      <p className="text-base text-muted">
+      <p className="text-sm text-muted">
         {answeredCount} de {answers.length} respondidas
       </p>
       <QuizTimer />
@@ -61,7 +61,7 @@ export function QuizNavigator({
           Terminar intento
         </ActionButton>
         {pendingCount > 0 && (
-          <p className="mt-4 text-sm text-muted">
+          <p className="mt-2 text-sm text-muted">
             Respondé las {pendingCount} preguntas pendientes para terminar.
           </p>
         )}

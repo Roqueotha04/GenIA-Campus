@@ -12,7 +12,7 @@ export function LoginForm() {
   const [state, formAction] = useActionState(signIn, idleFormState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} className="flex flex-col gap-4">
       <TextField label="Email" name="email" type="email" autoComplete="email" required />
       <TextField
         label="Clave"

@@ -11,7 +11,12 @@ import { removeFileExtension } from "@/lib/teacher/file-names";
 
 const MAX_UPLOAD_MEGABYTES = MAX_UPLOAD_BYTES / (1024 * 1024);
 
-export function FileResourceForm({ sectionId }: { sectionId: string }) {
+interface FileResourceFormProps {
+  sectionId: string;
+  onCreated?: () => void;
+}
+
+export function FileResourceForm({ sectionId, onCreated }: FileResourceFormProps) {
   const fileInputId = useId();
   const titleInputId = useId();
   const [file, setFile] = useState<File | null>(null);
@@ -51,7 +56,7 @@ export function FileResourceForm({ sectionId }: { sectionId: string }) {
     if (file.size > MAX_UPLOAD_BYTES) {
       return setState(errorState(`El archivo supera los ${MAX_UPLOAD_MEGABYTES} MB. Comprimilo o subí una versión más liviana.`));
     }
-    if (!title.trim()) return setState(errorState("Escribí un título para el archivo."));
+    if (!title.trim()) return setState(errorState("Escribí un nombre para el archivo."));
 
     const selected = file;
     startUpload(async () => {
@@ -61,6 +66,7 @@ export function FileResourceForm({ sectionId }: { sectionId: string }) {
         form.reset();
         setFile(null);
         setTitle("");
+        onCreated?.();
       }
     });
   }
@@ -83,7 +89,7 @@ export function FileResourceForm({ sectionId }: { sectionId: string }) {
       </div>
       <div>
         <label htmlFor={titleInputId} className="block text-sm font-medium text-foreground">
-          Título
+          Nombre
         </label>
         <input
           id={titleInputId}
@@ -91,7 +97,7 @@ export function FileResourceForm({ sectionId }: { sectionId: string }) {
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           disabled={isUploading}
-          className="mt-2 h-12 w-full rounded-sm border border-line bg-surface px-4 text-base text-foreground transition-colors focus:border-primary"
+          className="mt-2 h-11 w-full rounded-sm border border-line bg-surface px-4 text-base text-foreground transition-colors focus:border-primary"
         />
       </div>
       <FormStateMessage state={state} />

@@ -59,7 +59,9 @@ export async function createUser(_previousState: FormState, formData: FormData):
 
   revalidatePath(ADMIN_PATH);
   revalidatePath(ADMIN_USERS_PATH);
-  redirect(`${buildAdminUserPath(data.user.id)}?creado=1`);
+  return successState(
+    `Creamos la cuenta de ${fullName}. Ya puede ingresar con su email y la contraseña que cargaste.`,
+  );
 }
 
 export async function updateUser(_previousState: FormState, formData: FormData): Promise<FormState> {

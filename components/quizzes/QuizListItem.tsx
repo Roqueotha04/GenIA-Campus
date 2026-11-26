@@ -15,17 +15,17 @@ interface QuizListItemProps {
 
 export function QuizListItem({ course, quiz, questionCount }: QuizListItemProps) {
   return (
-    <li className="border border-line bg-surface p-4 md:p-6">
-      <p className="flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.22em] text-muted">
+    <li className="border border-line bg-surface p-4">
+      <p className="flex items-center gap-2 text-xs text-muted">
         <StatusDot tone={quiz.is_published ? "available" : "empty"} />
         {quiz.is_published ? "Publicado" : "Borrador"}
       </p>
-      <p className="mt-2 break-words font-medium text-foreground">{quiz.title}</p>
+      <p className="mt-1 break-words font-medium text-foreground">{quiz.title}</p>
       <p className="mt-1 text-sm text-muted">
         {questionCount} {questionCount === 1 ? "pregunta" : "preguntas"} · Aprobás con {quiz.passing_score}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-start gap-3">
+      <div className="mt-3 flex flex-wrap items-start gap-3">
         <Button href={buildQuizEditorHref(course, quiz.id)} variant="outline" size="sm">
           Editar y ver resultados
         </Button>

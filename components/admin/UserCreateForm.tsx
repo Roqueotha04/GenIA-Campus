@@ -5,9 +5,17 @@ import { MIN_PASSWORD_LENGTH } from "@/lib/auth/roles";
 import { AdminForm } from "./AdminForm";
 import { roleSelectOptions } from "./roleSelectOptions";
 
-export function UserCreateForm() {
+export function UserCreateForm({ onSuccess }: { onSuccess: (message: string) => void }) {
   return (
-    <AdminForm action={createUser} submitLabel="Crear usuario" pendingLabel="Creando usuario...">
+    <AdminForm
+      action={createUser}
+      submitLabel="Crear usuario"
+      pendingLabel="Creando usuario..."
+      onSuccess={onSuccess}
+    >
+      <p className="text-sm text-muted">
+        La cuenta queda lista para ingresar con el email y la contraseña que cargues.
+      </p>
       <TextField label="Nombre completo" name="fullName" autoComplete="off" required />
       <TextField label="Email" name="email" type="email" autoComplete="off" required />
       <TextField

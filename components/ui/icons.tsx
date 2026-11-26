@@ -103,3 +103,65 @@ export function InstagramIcon({ className = "h-5 w-5" }: IconProps) {
     </svg>
   );
 }
+
+export function PlusIcon({ className }: IconProps) {
+  return <StrokeIcon className={className} path="M12 5v14M5 12h14" />;
+}
+
+export function ForumIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon
+      className={className}
+      path="M4 5h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM16 9h4a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1v3l-4-3h-4a1 1 0 0 1-1-1v-1"
+    />
+  );
+}
+
+export function AssignmentIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon
+      className={className}
+      path="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M12 18v-6M9 14.5l3-3 3 3"
+    />
+  );
+}
+
+export function UploadIcon({ className }: IconProps) {
+  return <StrokeIcon className={className} path="M12 16V5M7 9l5-5 5 5M5 20h14" />;
+}
+
+export function MoreIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <circle cx="12" cy="5.5" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <circle cx="12" cy="18.5" r="1.6" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ className }: IconProps) {
+  return <StrokeIcon className={className} path="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4" />;
+}
+
+export function UserIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon
+      className={className}
+      path="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 20a8 8 0 0 1 16 0"
+    />
+  );
+}
+
+export function CourseIcon({ className }: IconProps) {
+  return (
+    <StrokeIcon
+      className={className}
+      path="M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zM4 20a2 2 0 0 0 2 2h13v-4M8 7h7"
+    />
+  );
+}
+
+export function GridIcon({ className }: IconProps) {
+  return <StrokeIcon className={className} path="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />;
+}

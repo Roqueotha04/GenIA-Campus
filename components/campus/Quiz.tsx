@@ -45,8 +45,8 @@ export function Quiz({ questions: originalQuestions, onFinish, isFinishing = fal
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_21rem] lg:items-start lg:gap-12">
-      <div className="flex flex-col gap-8 md:gap-10">
+    <div className="grid gap-6 lg:grid-cols-[1fr_18rem] lg:items-start lg:gap-8">
+      <div className="flex flex-col gap-5">
         <QuizQuestionCard
           number={questionIndex + 1}
           question={question}
@@ -57,18 +57,18 @@ export function Quiz({ questions: originalQuestions, onFinish, isFinishing = fal
         <div className="flex justify-between gap-4">
           <ActionButton
             variant="outline"
-            className="min-w-36"
+            className="min-w-32"
             onClick={() => setQuestionIndex(questionIndex - 1)}
             disabled={isFirstQuestion}
           >
             Anterior
           </ActionButton>
           {isLastQuestion ? (
-            <ActionButton className="min-w-36" onClick={handleFinish} disabled={!isComplete}>
+            <ActionButton className="min-w-32" onClick={handleFinish} disabled={!isComplete}>
               {isFinishing ? "Enviando…" : "Terminar intento"}
             </ActionButton>
           ) : (
-            <ActionButton className="min-w-36" onClick={() => setQuestionIndex(questionIndex + 1)}>
+            <ActionButton className="min-w-32" onClick={() => setQuestionIndex(questionIndex + 1)}>
               Siguiente
             </ActionButton>
           )}

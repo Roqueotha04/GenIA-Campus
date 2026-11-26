@@ -33,8 +33,8 @@ export function StudentSubmissionPanel({ assignment, submission }: StudentSubmis
   return (
     <div className="space-y-8">
       {submission && (
-        <div className="space-y-4 border border-line bg-surface p-5 md:p-8">
-          <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">Tu entrega</h2>
+        <div className="space-y-4 rounded-sm border border-line bg-surface p-5 md:p-6">
+          <h2 className="text-lg font-semibold text-foreground">Tu entrega</h2>
           <SubmissionContent submission={submission} dueAt={assignment.due_at} />
           <GradeResult submission={submission} maxGrade={assignment.max_grade} />
         </div>
@@ -43,8 +43,8 @@ export function StudentSubmissionPanel({ assignment, submission }: StudentSubmis
       {closedMessage ? (
         <FormAlert tone="error" message={closedMessage} />
       ) : (
-        <div className="border border-line bg-surface p-5 md:p-8">
-          <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground">
+        <div className="rounded-sm border border-line bg-surface p-5 md:p-6">
+          <h2 className="text-lg font-semibold text-foreground">
             {submission ? "Reenviar entrega" : "Hacer la entrega"}
           </h2>
           <div className="mt-5">

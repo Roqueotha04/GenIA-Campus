@@ -26,7 +26,7 @@ export function CourseManagement({ course, data }: CourseManagementProps) {
           { label: "Gestionar" },
         ]}
       />
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <SectionHeading level={1} title="Gestionar curso" eyebrow={course.title} />
         <div className="flex flex-wrap gap-3">
           <Button href={buildQuizManagerHref(course)} variant="outline" size="sm">
@@ -37,7 +37,7 @@ export function CourseManagement({ course, data }: CourseManagementProps) {
           </Button>
         </div>
       </div>
-      <div className="mt-12 space-y-16">
+      <div className="mt-8 space-y-10">
         <EnrollmentKeyPanel courseId={course.id} enrollmentKey={data.enrollmentKey} />
         <SectionsManager courseId={course.id} sections={data.sections} />
         <NoticesManager courseId={course.id} notices={data.notices} />

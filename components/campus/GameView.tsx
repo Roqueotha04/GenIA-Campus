@@ -16,16 +16,16 @@ interface GameViewProps {
 
 export function GameView({ level, courseModule, courseClass, game }: GameViewProps) {
   return (
-    <Section className="py-8 md:py-12">
+    <Section>
       <Breadcrumb items={buildModuleBreadcrumbItems(level, courseModule, game.title)} />
-      <div className="flex flex-wrap items-end justify-between gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <SectionHeading level={1} eyebrow="Juego" title={game.title} subtitle={courseClass.title} />
         <Button href={buildModuleHref(level, courseModule)} variant="outline" size="sm">
           <ArrowLeftIcon className="h-4 w-4" />
           Volver al módulo
         </Button>
       </div>
-      <div className="mx-auto mt-8 h-[calc(100svh-24rem)] max-h-[50rem] min-h-[34rem] w-full max-w-5xl border border-line bg-navy">
+      <div className="mx-auto mt-6 h-[calc(100svh-24rem)] max-h-[50rem] min-h-[34rem] w-full max-w-5xl border border-line bg-navy">
         <iframe
           src={game.path}
           title={game.title}

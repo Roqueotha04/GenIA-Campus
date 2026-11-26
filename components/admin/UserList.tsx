@@ -1,24 +1,29 @@
 import Link from "next/link";
 import { buildAdminUserPath } from "@/lib/admin/admin-paths";
 import type { AdminProfile } from "@/lib/admin/admin-queries";
-import { roleLabels } from "@/lib/auth/roles";
+import { formatAdminDate } from "@/lib/admin/format-admin-date";
 import { ActiveStatus } from "./ActiveStatus";
 import { AdminEmptyState } from "./AdminEmptyState";
+import { AdminTable } from "./AdminTable";
+import { RoleBadge } from "./RoleBadge";
+
+const userTableColumns = ["Nombre", "Email", "Rol", "Estado", "Alta"];
 
 function UserCard({ profile }: { profile: AdminProfile }) {
   return (
     <li>
       <Link
         href={buildAdminUserPath(profile.id)}
-        className="block rounded-sm border border-line bg-surface p-4 transition-colors hover:border-navy"
+        className="block rounded-sm border border-line bg-surface p-3 transition-colors hover:border-navy"
       >
-        <p className="font-medium text-foreground">{profile.full_name}</p>
-        <p className="mt-1 break-all text-sm text-muted">{profile.email}</p>
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="text-xs font-medium uppercase tracking-[0.22em] text-muted">
-            {roleLabels[profile.role]}
-          </span>
+        <div className="flex items-start justify-between gap-3">
+          <p className="min-w-0 font-medium text-foreground">{profile.full_name}</p>
+          <RoleBadge role={profile.role} />
+        </div>
+        <p className="mt-0.5 break-all text-sm text-muted">{profile.email}</p>
+        <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted">
           <ActiveStatus isActive={profile.is_active} />
+          <span>Alta {formatAdminDate(profile.created_at)}</span>
         </div>
       </Link>
     </li>
@@ -27,65 +32,46 @@ function UserCard({ profile }: { profile: AdminProfile }) {
 
 function UserRow({ profile }: { profile: AdminProfile }) {
   return (
-    <tr className="border-t border-line">
-      <td className="px-4 py-3 font-medium text-foreground">{profile.full_name}</td>
-      <td className="px-4 py-3 text-muted">{profile.email}</td>
-      <td className="px-4 py-3 text-foreground">{roleLabels[profile.role]}</td>
-      <td className="px-4 py-3">
-        <ActiveStatus isActive={profile.is_active} />
-      </td>
-      <td className="px-4 py-3 text-right">
+    <tr className="relative transition-colors hover:bg-background">
+      <td className="px-4 py-2.5 font-medium text-foreground">
         <Link
           href={buildAdminUserPath(profile.id)}
-          className="text-sm font-semibold text-primary hover:text-navy"
+          className="after:absolute after:inset-0 hover:text-primary"
         >
-          Editar
+          {profile.full_name}
         </Link>
       </td>
+      <td className="px-4 py-2.5 text-muted">{profile.email}</td>
+      <td className="px-4 py-2.5">
+        <RoleBadge role={profile.role} />
+      </td>
+      <td className="px-4 py-2.5">
+        <ActiveStatus isActive={profile.is_active} />
+      </td>
+      <td className="whitespace-nowrap px-4 py-2.5 text-muted">{formatAdminDate(profile.created_at)}</td>
     </tr>
-  );
-}
-
-function UserTable({ profiles }: { profiles: AdminProfile[] }) {
-  return (
-    <div className="hidden overflow-x-auto rounded-sm border border-line bg-surface md:block">
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="text-xs uppercase tracking-[0.18em] text-muted">
-            <th scope="col" className="px-4 py-3 font-medium">Nombre</th>
-            <th scope="col" className="px-4 py-3 font-medium">Email</th>
-            <th scope="col" className="px-4 py-3 font-medium">Rol</th>
-            <th scope="col" className="px-4 py-3 font-medium">Estado</th>
-            <th scope="col" className="px-4 py-3">
-              <span className="sr-only">Acciones</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {profiles.map((profile) => (
-            <UserRow key={profile.id} profile={profile} />
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }
 
 export function UserList({ profiles }: { profiles: AdminProfile[] }) {
   if (profiles.length === 0) {
     return (
-      <AdminEmptyState message="No hay usuarios con este filtro. Cambiá el filtro o creá uno desde el formulario de abajo." />
+      <AdminEmptyState message="No encontramos usuarios con esta búsqueda o filtro. Probá con otro término o creá uno con «Nuevo usuario»." />
     );
   }
 
   return (
     <>
-      <ul className="space-y-3 md:hidden">
+      <ul className="space-y-2 md:hidden">
         {profiles.map((profile) => (
           <UserCard key={profile.id} profile={profile} />
         ))}
       </ul>
-      <UserTable profiles={profiles} />
+      <AdminTable columns={userTableColumns}>
+        {profiles.map((profile) => (
+          <UserRow key={profile.id} profile={profile} />
+        ))}
+      </AdminTable>
     </>
   );
 }

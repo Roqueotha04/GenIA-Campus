@@ -23,13 +23,13 @@ export function CourseEnrollmentGate({ course, levelName, teacherNames }: Course
           subtitle={course.description || undefined}
         />
         {teacherNames.length > 0 && (
-          <p className="mt-6 text-sm text-muted">
+          <p className="mt-3 text-sm text-muted">
             {teacherNames.length === 1 ? "Docente" : "Docentes"}:{" "}
             <span className="text-foreground">{teacherNames.join(", ")}</span>
           </p>
         )}
       </Reveal>
-      <Reveal delay={0.1} className="mt-12 border border-line bg-surface p-6 md:p-10">
+      <Reveal delay={0.1} className="mt-6 border border-line bg-surface p-5 md:p-6">
         <EnrollmentForm courseId={course.id} />
       </Reveal>
     </Section>

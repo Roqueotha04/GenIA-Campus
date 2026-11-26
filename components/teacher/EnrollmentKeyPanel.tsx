@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ActionButton } from "@/components/ui/Button";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { regenerateEnrollmentKeyAction } from "@/lib/teacher/enrollment-key-actions";
 import { ConfirmActionForm } from "./ConfirmActionForm";
 
@@ -27,20 +26,18 @@ export function EnrollmentKeyPanel({ courseId, enrollmentKey }: EnrollmentKeyPan
   }
 
   return (
-    <div className="border border-line bg-surface p-6 md:p-8">
-      <div className="text-muted">
-        <Eyebrow>Clave de inscripción</Eyebrow>
-      </div>
-      <p className="mt-4 text-sm text-muted">
+    <div className="rounded-sm border border-line bg-surface p-4 md:p-5">
+      <h2 className="text-base font-semibold text-foreground">Clave de inscripción</h2>
+      <p className="mt-1 text-sm text-muted">
         Compartila con tus alumnos: la ingresan en el campus para sumarse a este curso.
       </p>
       <p
         aria-label="Clave de inscripción"
-        className="mt-5 break-all font-heading text-3xl font-semibold tracking-[0.12em] text-foreground md:text-5xl"
+        className="mt-3 break-all text-2xl font-semibold tracking-[0.12em] text-foreground md:text-3xl"
       >
         {enrollmentKey || "Sin clave"}
       </p>
-      <div className="mt-6 flex flex-wrap items-start gap-3">
+      <div className="mt-4 flex flex-wrap items-start gap-3">
         <ActionButton variant="primary" size="sm" onClick={copyKey} disabled={!enrollmentKey}>
           {copied ? "Clave copiada" : "Copiar clave"}
         </ActionButton>

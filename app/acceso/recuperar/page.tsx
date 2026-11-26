@@ -18,7 +18,7 @@ export default async function RecoverPasswordPage({ searchParams }: RecoverPageP
       description="Ingresá tu email y te mandamos un link para elegir una clave nueva."
     >
       {link === "vencido" && (
-        <div className="mb-6">
+        <div className="mb-4">
           <FormAlert tone="error" message="El link venció o ya se usó. Pedí uno nuevo." />
         </div>
       )}

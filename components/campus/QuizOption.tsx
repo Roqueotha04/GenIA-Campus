@@ -14,7 +14,7 @@ export function QuizOption({ name, inputType, letter, label, checked, onSelect }
 
   return (
     <label
-      className={`flex cursor-pointer items-start gap-5 border bg-surface p-5 text-base leading-relaxed transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary md:p-6 md:text-lg ${
+      className={`flex cursor-pointer items-start gap-3 border bg-surface p-3 text-sm leading-relaxed transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary md:p-4 md:text-base ${
         checked ? "border-primary text-foreground" : "border-line hover:border-navy"
       }`}
     >
@@ -27,8 +27,8 @@ export function QuizOption({ name, inputType, letter, label, checked, onSelect }
       />
       <span
         aria-hidden
-        className={`mt-1.5 h-5 w-5 shrink-0 border-2 ${indicatorShape} ${
-          checked ? "border-primary bg-primary shadow-[inset_0_0_0_4px_white]" : "border-muted"
+        className={`mt-0.5 h-4 w-4 shrink-0 border-2 ${indicatorShape} ${
+          checked ? "border-primary bg-primary shadow-[inset_0_0_0_3px_white]" : "border-muted"
         }`}
       />
       <span>

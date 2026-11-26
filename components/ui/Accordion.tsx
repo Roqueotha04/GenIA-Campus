@@ -37,7 +37,7 @@ export function Accordion({ items, defaultOpenIds = [] }: AccordionProps) {
           {allOpen ? "Colapsar todo" : "Expandir todo"}
         </button>
       </div>
-      <ul className="mt-4 flex flex-col gap-3">
+      <ul className="mt-3 flex flex-col gap-2">
         {items.map((item) => {
           const isOpen = openIds.includes(item.id);
           return (
@@ -48,14 +48,14 @@ export function Accordion({ items, defaultOpenIds = [] }: AccordionProps) {
                   onClick={() => toggleItem(item.id)}
                   aria-expanded={isOpen}
                   aria-controls={`accordion-${item.id}`}
-                  className="flex w-full items-center gap-4 p-5 text-left md:px-6"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-background"
                 >
                   <ChevronDownIcon
-                    className={`h-5 w-5 shrink-0 text-muted transition-transform ${
+                    className={`h-4 w-4 shrink-0 text-muted transition-transform ${
                       isOpen ? "" : "-rotate-90"
                     }`}
                   />
-                  <span className="flex-1 font-heading text-lg font-semibold tracking-tight text-foreground md:text-xl">
+                  <span className="flex-1 font-heading text-base font-semibold text-foreground">
                     {item.title}
                   </span>
                   {item.aside && (
@@ -66,7 +66,7 @@ export function Accordion({ items, defaultOpenIds = [] }: AccordionProps) {
               <div
                 id={`accordion-${item.id}`}
                 hidden={!isOpen}
-                className="border-t border-line px-5 pb-5 pt-4 md:px-6"
+                className="border-t border-line px-4 pb-4 pt-3"
               >
                 {item.content}
               </div>

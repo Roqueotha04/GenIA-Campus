@@ -19,7 +19,7 @@ export function formatNoticeDate(isoDate: string): string {
   return dayFormatter.format(new Date(isoDate));
 }
 
-export function formatDueLabel(isoDate: string | null): string | null {
-  if (!isoDate) return null;
-  return `Entrega hasta el ${dayAndTimeFormatter.format(new Date(isoDate))}`;
+export function formatDueLabel(isoDate: string | null): string {
+  if (!isoDate) return "Sin fecha de entrega";
+  return `Fecha de entrega: ${dayAndTimeFormatter.format(new Date(isoDate))}`;
 }

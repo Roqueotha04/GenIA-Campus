@@ -19,9 +19,10 @@ function listTopics(level: Level) {
 
 export function LevelCatalog() {
   return (
-    <Section id="niveles">
+    <Section id="niveles" density="editorial">
       <Reveal>
         <SectionHeading
+          size="editorial"
           eyebrow="Plan de estudio"
           title="Niveles, módulos"
           accent="y temas."

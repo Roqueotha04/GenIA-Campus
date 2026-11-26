@@ -24,17 +24,17 @@ export function ChoiceOptionField({ index, allowMultiple, defaultText, defaultCo
           name={`option${index}`}
           type="text"
           defaultValue={defaultText}
-          className="mt-2 h-12 w-full rounded-sm border border-line bg-surface px-4 text-base text-foreground transition-colors focus:border-primary"
+          className="mt-1.5 h-10 w-full rounded-sm border border-line bg-surface px-3 text-sm text-foreground transition-colors focus:border-primary"
         />
       </div>
-      <div className="flex items-center gap-3 sm:h-12">
+      <div className="flex items-center gap-3 sm:h-10">
         <input
           id={markerId}
           type={allowMultiple ? "checkbox" : "radio"}
           name={allowMultiple ? `correct${index}` : "correctIndex"}
           value={allowMultiple ? undefined : String(index)}
           defaultChecked={defaultCorrect}
-          className="h-5 w-5 accent-primary"
+          className="h-4 w-4 accent-primary"
         />
         <label htmlFor={markerId} className="text-sm text-foreground">
           Correcta

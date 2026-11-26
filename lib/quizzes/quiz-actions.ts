@@ -2,13 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { errorState, successState, type FormState } from "@/lib/forms/form-state";
-import { authorizeCourse } from "@/lib/teacher/course-authorization";
+import type { CourseSummary } from "@/lib/courses/course-access";
+import {
+  authorizeCourse,
+  authorizeSection,
+  type SupabaseServerClient,
+} from "@/lib/teacher/course-authorization";
 import { parseForm } from "@/lib/teacher/parse-form";
-import { swapWithNeighbor } from "@/lib/teacher/reorder";
+import { nextResourcePosition, swapWithNeighbor } from "@/lib/teacher/reorder";
 import { authorizeQuiz } from "./quiz-authorization";
 import { parseQuestionForm } from "./question-form";
 import {
   createQuizSchema,
+  createSectionQuizSchema,
   moveQuestionSchema,
   questionReferenceSchema,
   quizIdSchema,
@@ -25,23 +31,47 @@ const SAVE_FAILED = "No pudimos guardar los cambios. Probá de nuevo en unos seg
 const CORRUPTED_QUESTIONS = "Las preguntas guardadas tienen un formato inesperado. Pedile ayuda a un administrador.";
 const QUESTION_NOT_FOUND = "No encontramos esa pregunta. Recargá la página y probá de nuevo.";
 
-export async function createQuizAction(_previous: FormState, formData: FormData): Promise<FormState> {
-  const parsed = parseForm(createQuizSchema, formData);
-  if (!parsed.valid) return parsed.state;
+interface NewQuiz {
+  supabase: SupabaseServerClient;
+  course: CourseSummary;
+  title: string;
+  sectionId: string | null;
+}
 
-  const authorization = await authorizeCourse(parsed.data.courseId);
-  if (!authorization.allowed) return authorization.state;
-  const { supabase, course } = authorization.context;
-
+async function createQuizAndOpenEditor({ supabase, course, title, sectionId }: NewQuiz): Promise<FormState> {
   const { data: quiz, error } = await supabase
     .from("quizzes")
-    .insert({ course_id: course.id, title: parsed.data.title })
+    .insert({ course_id: course.id, title, section_id: sectionId })
     .select("id")
     .single();
   if (error || !quiz) return errorState("No pudimos crear el cuestionario. Probá de nuevo en unos segundos.");
 
   revalidateQuizzes(course);
   redirect(buildQuizEditorHref(course, quiz.id));
+}
+
+export async function createQuizAction(_previous: FormState, formData: FormData): Promise<FormState> {
+  const parsed = parseForm(createQuizSchema, formData);
+  if (!parsed.valid) return parsed.state;
+
+  const authorization = await authorizeCourse(parsed.data.courseId);
+  if (!authorization.allowed) return authorization.state;
+
+  return createQuizAndOpenEditor({ ...authorization.context, title: parsed.data.title, sectionId: null });
+}
+
+export async function createSectionQuizAction(_previous: FormState, formData: FormData): Promise<FormState> {
+  const parsed = parseForm(createSectionQuizSchema, formData);
+  if (!parsed.valid) return parsed.state;
+
+  const authorization = await authorizeSection(parsed.data.sectionId);
+  if (!authorization.allowed) return authorization.state;
+
+  return createQuizAndOpenEditor({
+    ...authorization.context,
+    title: parsed.data.title,
+    sectionId: parsed.data.sectionId,
+  });
 }
 
 export async function updateQuizAction(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -72,6 +102,27 @@ export async function updateQuizAction(_previous: FormState, formData: FormData)
   return successState("Cambios guardados.");
 }
 
+async function placeQuizInTargetSection(
+  supabase: SupabaseServerClient,
+  quizId: string,
+  title: string,
+): Promise<void> {
+  const [{ data: target }, { count: placedCount }] = await Promise.all([
+    supabase.from("quizzes").select("section_id").eq("id", quizId).maybeSingle(),
+    supabase.from("resources").select("id", { count: "exact", head: true }).eq("quiz_id", quizId),
+  ]);
+  if (!target?.section_id || (placedCount ?? 0) > 0) return;
+
+  const position = await nextResourcePosition(supabase, target.section_id);
+  await supabase.from("resources").insert({
+    section_id: target.section_id,
+    kind: "quiz",
+    title,
+    quiz_id: quizId,
+    position,
+  });
+}
+
 export async function setQuizPublishedAction(_previous: FormState, formData: FormData): Promise<FormState> {
   const parsed = parseForm(setQuizPublishedSchema, formData);
   if (!parsed.valid) return parsed.state;
@@ -89,6 +140,8 @@ export async function setQuizPublishedAction(_previous: FormState, formData: For
 
   const { error } = await supabase.from("quizzes").update({ is_published: shouldPublish }).eq("id", quiz.id);
   if (error) return errorState(SAVE_FAILED);
+
+  if (shouldPublish) await placeQuizInTargetSection(supabase, quiz.id, quiz.title);
 
   revalidateQuizzes(course);
   return successState(shouldPublish ? "Cuestionario publicado." : "Cuestionario despublicado.");

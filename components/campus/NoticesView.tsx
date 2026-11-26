@@ -16,9 +16,9 @@ interface NoticesViewProps {
 
 export function NoticesView({ level, courseModule }: NoticesViewProps) {
   return (
-    <Section className="py-8 md:py-12">
+    <Section>
       <Breadcrumb items={buildModuleBreadcrumbItems(level, courseModule, "Avisos")} />
-      <div className="flex flex-wrap items-end justify-between gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <SectionHeading
           level={1}
           eyebrow={`${level.name} · Módulo ${courseModule.number}`}
@@ -30,7 +30,7 @@ export function NoticesView({ level, courseModule }: NoticesViewProps) {
           Volver al módulo
         </Button>
       </div>
-      <Reveal delay={0.1} className="mt-10">
+      <Reveal delay={0.1} className="mt-6">
         <NoticeBoard notices={courseModule.notices ?? []} />
       </Reveal>
     </Section>

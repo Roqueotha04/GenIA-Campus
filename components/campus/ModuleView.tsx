@@ -44,7 +44,7 @@ export function ModuleView({ level, courseModule }: ModuleViewProps) {
       <Reveal>
         <SectionHeading level={1} eyebrow={level.name} title={`Módulo ${number}`} />
       </Reveal>
-      <Reveal delay={0.1} className="mt-10">
+      <Reveal delay={0.1} className="mt-6">
         <Accordion items={accordionItems} defaultOpenIds={accordionItems.map((item) => item.id)} />
       </Reveal>
     </Section>

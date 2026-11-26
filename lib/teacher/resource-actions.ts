@@ -1,67 +1,77 @@
 "use server";
 
-import { COURSE_MATERIALS_BUCKET } from "@/lib/storage/storage-buckets";
-import { findRegisteredGame } from "@/data/games";
-import { errorState, successState, type FormState } from "@/lib/forms/form-state";
-import { authorizeResource, authorizeSection } from "./course-authorization";
-import { parseForm } from "./parse-form";
-import { nextResourcePosition, persistPositions, swapWithNeighbor } from "./reorder";
-import { revalidateCourse } from "./revalidate-course";
+import { revalidatePath } from "next/cache";
 import {
-  createGameResourceSchema,
-  createLinkResourceSchema,
-  moveResourceSchema,
-  renameResourceSchema,
-  resourceIdSchema,
-} from "./teacher-schemas";
+  collectAssignmentStoredFiles,
+  removeAssignmentStoredFiles,
+} from "@/lib/assignments/assignment-stored-files";
+import { removeStoredFiles } from "@/lib/assignments/remove-stored-files";
+import { buildCourseAssignmentHref, buildCourseForumHref } from "@/lib/course-content/course-routes";
+import type { CourseSummary } from "@/lib/courses/course-access";
+import { errorState, successState, type FormState } from "@/lib/forms/form-state";
+import { COURSE_MATERIALS_BUCKET } from "@/lib/storage/storage-buckets";
+import type { TableRow } from "@/types/database";
+import { authorizeResource, type SupabaseServerClient } from "./course-authorization";
+import { parseForm } from "./parse-form";
+import { persistPositions, swapWithNeighbor } from "./reorder";
+import { revalidateCourse } from "./revalidate-course";
+import { moveResourceSchema, renameResourceSchema, resourceIdSchema } from "./teacher-schemas";
 
-const SAVE_FAILED = "No pudimos guardar el recurso. Probá de nuevo en unos segundos.";
+type ItemTarget = Pick<TableRow<"resources">, "id" | "storage_path" | "assignment_id" | "forum_id">;
 
-export async function createLinkResourceAction(_previous: FormState, formData: FormData): Promise<FormState> {
-  const parsed = parseForm(createLinkResourceSchema, formData);
-  if (!parsed.valid) return parsed.state;
+const RESOURCE_NOT_FOUND = errorState("No encontramos el elemento. Recargá la página y probá de nuevo.");
 
-  const authorization = await authorizeSection(parsed.data.sectionId);
-  if (!authorization.allowed) return authorization.state;
-  const { supabase, course } = authorization.context;
-
-  const position = await nextResourcePosition(supabase, parsed.data.sectionId);
-  const { error } = await supabase.from("resources").insert({
-    section_id: parsed.data.sectionId,
-    kind: "link",
-    title: parsed.data.title,
-    url: parsed.data.url,
-    position,
-  });
-  if (error) return errorState(SAVE_FAILED);
-
-  revalidateCourse(course);
-  return successState("Enlace agregado.");
+async function readItemTarget(supabase: SupabaseServerClient, resourceId: string): Promise<ItemTarget | null> {
+  const { data } = await supabase
+    .from("resources")
+    .select("id, storage_path, assignment_id, forum_id")
+    .eq("id", resourceId)
+    .maybeSingle();
+  return data;
 }
 
-export async function createGameResourceAction(_previous: FormState, formData: FormData): Promise<FormState> {
-  const parsed = parseForm(createGameResourceSchema, formData);
-  if (!parsed.valid) return parsed.state;
-
-  const game = findRegisteredGame(parsed.data.gameSlug);
-  if (!game) return errorState("Ese juego no está disponible. Elegí uno de la lista.");
-
-  const authorization = await authorizeSection(parsed.data.sectionId);
-  if (!authorization.allowed) return authorization.state;
-  const { supabase, course } = authorization.context;
-
-  const position = await nextResourcePosition(supabase, parsed.data.sectionId);
-  const { error } = await supabase.from("resources").insert({
-    section_id: parsed.data.sectionId,
-    kind: "game",
-    title: game.title,
-    game_slug: game.slug,
-    position,
-  });
-  if (error) return errorState(SAVE_FAILED);
-
+function revalidateItem(course: CourseSummary, item: ItemTarget): void {
   revalidateCourse(course);
-  return successState("Juego agregado.");
+  if (item.assignment_id) revalidatePath(buildCourseAssignmentHref(course, item.assignment_id));
+  if (item.forum_id) revalidatePath(buildCourseForumHref(course, item.forum_id), "layout");
+}
+
+async function renameLinkedEntity(supabase: SupabaseServerClient, item: ItemTarget, title: string): Promise<boolean> {
+  if (item.assignment_id) {
+    const { error } = await supabase.from("assignments").update({ title }).eq("id", item.assignment_id);
+    return !error;
+  }
+  if (item.forum_id) {
+    const { error } = await supabase.from("forums").update({ title }).eq("id", item.forum_id);
+    return !error;
+  }
+  return true;
+}
+
+async function deleteAssignmentItem(supabase: SupabaseServerClient, assignmentId: string): Promise<boolean> {
+  const storedFiles = await collectAssignmentStoredFiles(supabase, [assignmentId]);
+  const { error } = await supabase.from("assignments").delete().eq("id", assignmentId);
+  if (error) return false;
+  await removeAssignmentStoredFiles(supabase, storedFiles);
+  return true;
+}
+
+async function deleteForumItem(supabase: SupabaseServerClient, forumId: string): Promise<boolean> {
+  const { error } = await supabase.from("forums").delete().eq("id", forumId);
+  return !error;
+}
+
+async function deleteResourceRow(supabase: SupabaseServerClient, item: ItemTarget): Promise<boolean> {
+  const { error } = await supabase.from("resources").delete().eq("id", item.id);
+  if (error) return false;
+  await removeStoredFiles(supabase, COURSE_MATERIALS_BUCKET, [item.storage_path]);
+  return true;
+}
+
+function deleteItem(supabase: SupabaseServerClient, item: ItemTarget): Promise<boolean> {
+  if (item.assignment_id) return deleteAssignmentItem(supabase, item.assignment_id);
+  if (item.forum_id) return deleteForumItem(supabase, item.forum_id);
+  return deleteResourceRow(supabase, item);
 }
 
 export async function renameResourceAction(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -72,14 +82,18 @@ export async function renameResourceAction(_previous: FormState, formData: FormD
   if (!authorization.allowed) return authorization.state;
   const { supabase, course } = authorization.context;
 
+  const item = await readItemTarget(supabase, parsed.data.resourceId);
+  if (!item) return RESOURCE_NOT_FOUND;
+
   const { error } = await supabase
     .from("resources")
     .update({ title: parsed.data.title })
-    .eq("id", parsed.data.resourceId);
-  if (error) return errorState("No pudimos cambiar el título. Probá de nuevo en unos segundos.");
+    .eq("id", item.id);
+  const renamed = !error && (await renameLinkedEntity(supabase, item, parsed.data.title));
+  if (!renamed) return errorState("No pudimos cambiar el nombre. Probá de nuevo en unos segundos.");
 
-  revalidateCourse(course);
-  return successState("Título actualizado.");
+  revalidateItem(course, item);
+  return successState("Nombre actualizado.");
 }
 
 export async function deleteResourceAction(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -90,21 +104,14 @@ export async function deleteResourceAction(_previous: FormState, formData: FormD
   if (!authorization.allowed) return authorization.state;
   const { supabase, course } = authorization.context;
 
-  const { data: resource } = await supabase
-    .from("resources")
-    .select("storage_path")
-    .eq("id", parsed.data.resourceId)
-    .maybeSingle();
+  const item = await readItemTarget(supabase, parsed.data.resourceId);
+  if (!item) return RESOURCE_NOT_FOUND;
 
-  const { error } = await supabase.from("resources").delete().eq("id", parsed.data.resourceId);
-  if (error) return errorState("No pudimos eliminar el recurso. Probá de nuevo en unos segundos.");
+  const deleted = await deleteItem(supabase, item);
+  if (!deleted) return errorState("No pudimos eliminar el elemento. Probá de nuevo en unos segundos.");
 
-  if (resource?.storage_path) {
-    await supabase.storage.from(COURSE_MATERIALS_BUCKET).remove([resource.storage_path]);
-  }
-
-  revalidateCourse(course);
-  return successState("Recurso eliminado.");
+  revalidateItem(course, item);
+  return successState("Elemento eliminado.");
 }
 
 export async function moveResourceAction(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -120,7 +127,7 @@ export async function moveResourceAction(_previous: FormState, formData: FormDat
     .select("section_id")
     .eq("id", parsed.data.resourceId)
     .maybeSingle();
-  if (!current) return errorState("No encontramos el recurso. Recargá la página y probá de nuevo.");
+  if (!current) return RESOURCE_NOT_FOUND;
 
   const { data: siblings } = await supabase
     .from("resources")
@@ -130,10 +137,10 @@ export async function moveResourceAction(_previous: FormState, formData: FormDat
     .order("created_at");
 
   const reordered = swapWithNeighbor(siblings ?? [], parsed.data.resourceId, parsed.data.direction);
-  if (!reordered) return errorState("El recurso ya está en ese extremo de la lista.");
+  if (!reordered) return errorState("El elemento ya está en ese extremo de la lista.");
 
   const saved = await persistPositions(supabase, "resources", reordered.map((resource) => resource.id));
-  if (!saved) return errorState("No pudimos reordenar los recursos. Recargá la página y probá de nuevo.");
+  if (!saved) return errorState("No pudimos reordenar los elementos. Recargá la página y probá de nuevo.");
 
   revalidateCourse(course);
   return successState("Orden actualizado.");

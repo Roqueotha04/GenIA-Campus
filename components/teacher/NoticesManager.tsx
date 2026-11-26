@@ -16,9 +16,9 @@ const noticeDateFormat = new Intl.DateTimeFormat("es-AR", { dateStyle: "medium" 
 export function NoticesManager({ courseId, notices }: NoticesManagerProps) {
   return (
     <div>
-      <SectionHeading title="Avisos" eyebrow="Comunicación" />
-      <div className="mt-8 border border-line bg-surface p-5 md:p-8">
-        <p className="mb-4 font-medium text-foreground">Nuevo aviso</p>
+      <SectionHeading title="Avisos" />
+      <div className="mt-6 rounded-sm border border-line bg-surface p-4 md:p-5">
+        <p className="mb-4 text-sm font-semibold text-foreground">Nuevo aviso</p>
         <ActionForm
           action={createNoticeAction}
           hiddenFields={{ courseId }}
@@ -30,11 +30,11 @@ export function NoticesManager({ courseId, notices }: NoticesManagerProps) {
         </ActionForm>
       </div>
       {notices.length === 0 ? (
-        <p className="mt-8 text-muted">Todavía no publicaste avisos. Los alumnos los ven apenas los publicás.</p>
+        <p className="mt-6 text-sm text-muted">Todavía no publicaste avisos. Los alumnos los ven apenas los publicás.</p>
       ) : (
-        <ul className="mt-8 space-y-4">
+        <ul className="mt-6 space-y-3">
           {notices.map((notice) => (
-            <li key={notice.id} className="border border-line bg-surface p-5">
+            <li key={notice.id} className="rounded-sm border border-line bg-surface p-4">
               <p className="text-xs text-muted">{noticeDateFormat.format(new Date(notice.created_at))}</p>
               <p className="mt-1 font-medium text-foreground">{notice.title}</p>
               <p className="mt-2 whitespace-pre-line text-sm text-muted">{notice.body}</p>

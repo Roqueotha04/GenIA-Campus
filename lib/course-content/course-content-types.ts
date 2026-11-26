@@ -7,13 +7,7 @@ export interface CourseResourceItem {
   href: string | null;
   isDownload: boolean;
   opensInNewTab: boolean;
-}
-
-export interface CourseAssignmentItem {
-  id: string;
-  title: string;
-  href: string;
-  dueLabel: string | null;
+  subtitle?: string;
 }
 
 export interface CourseSectionContent {
@@ -21,7 +15,6 @@ export interface CourseSectionContent {
   title: string;
   description: string;
   resources: CourseResourceItem[];
-  assignments: CourseAssignmentItem[];
 }
 
 export interface CourseNoticeItem {

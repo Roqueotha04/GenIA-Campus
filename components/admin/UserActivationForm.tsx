@@ -4,7 +4,7 @@ import { AdminForm } from "./AdminForm";
 
 export function UserActivationForm({ userId, isActive }: { userId: string; isActive: boolean }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <ActiveStatus
         isActive={isActive}
         activeLabel="La cuenta está activa"

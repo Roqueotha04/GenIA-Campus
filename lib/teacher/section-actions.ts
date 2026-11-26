@@ -1,5 +1,10 @@
 "use server";
 
+import {
+  collectAssignmentStoredFiles,
+  removeAssignmentStoredFiles,
+} from "@/lib/assignments/assignment-stored-files";
+import { removeStoredFiles } from "@/lib/assignments/remove-stored-files";
 import { COURSE_MATERIALS_BUCKET } from "@/lib/storage/storage-buckets";
 import { errorState, successState, type FormState } from "@/lib/forms/form-state";
 import { authorizeCourse, authorizeSection } from "./course-authorization";
@@ -60,17 +65,22 @@ export async function deleteSectionAction(_previous: FormState, formData: FormDa
   if (!authorization.allowed) return authorization.state;
   const { supabase, course } = authorization.context;
 
-  const { data: files } = await supabase
-    .from("resources")
-    .select("storage_path")
-    .eq("section_id", parsed.data.sectionId)
-    .eq("kind", "file");
-  const storagePaths = (files ?? []).flatMap((file) => (file.storage_path ? [file.storage_path] : []));
+  const [{ data: files }, { data: assignments }] = await Promise.all([
+    supabase.from("resources").select("storage_path").eq("section_id", parsed.data.sectionId).eq("kind", "file"),
+    supabase.from("assignments").select("id").eq("section_id", parsed.data.sectionId),
+  ]);
+  const assignmentFiles = await collectAssignmentStoredFiles(
+    supabase,
+    (assignments ?? []).map((assignment) => assignment.id),
+  );
 
   const { error } = await supabase.from("sections").delete().eq("id", parsed.data.sectionId);
   if (error) return errorState("No pudimos eliminar la sección. Probá de nuevo en unos segundos.");
 
-  if (storagePaths.length > 0) await supabase.storage.from(COURSE_MATERIALS_BUCKET).remove(storagePaths);
+  await Promise.all([
+    removeStoredFiles(supabase, COURSE_MATERIALS_BUCKET, (files ?? []).map((file) => file.storage_path)),
+    removeAssignmentStoredFiles(supabase, assignmentFiles),
+  ]);
 
   revalidateCourse(course);
   return successState("Sección eliminada.");

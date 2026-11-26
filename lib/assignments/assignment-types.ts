@@ -1,7 +1,7 @@
 import type { TableRow } from "@/types/database";
 
 export const ASSIGNMENT_COLUMNS =
-  "id, section_id, course_id, title, instructions, attachment_path, attachment_name, due_at, max_grade, allow_late";
+  "id, section_id, course_id, title, instructions, attachment_path, attachment_name, due_at, cutoff_at, max_grade";
 
 export type AssignmentRecord = Pick<
   TableRow<"assignments">,
@@ -13,8 +13,8 @@ export type AssignmentRecord = Pick<
   | "attachment_path"
   | "attachment_name"
   | "due_at"
+  | "cutoff_at"
   | "max_grade"
-  | "allow_late"
 >;
 
 export const SUBMISSION_COLUMNS =
@@ -37,7 +37,7 @@ export type SubmissionRecord = Pick<
 
 export type ManagedAssignment = Pick<
   AssignmentRecord,
-  "id" | "section_id" | "title" | "instructions" | "attachment_name" | "due_at" | "max_grade" | "allow_late"
+  "id" | "section_id" | "title" | "instructions" | "attachment_name" | "due_at" | "cutoff_at" | "max_grade"
 > & {
   href: string;
   submittedCount: number;

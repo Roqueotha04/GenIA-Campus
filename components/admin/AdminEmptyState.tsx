@@ -1,3 +1,7 @@
 export function AdminEmptyState({ message }: { message: string }) {
-  return <p className="border border-dashed border-line px-4 py-6 text-sm text-muted">{message}</p>;
+  return (
+    <p className="rounded-sm border border-dashed border-line bg-surface px-4 py-5 text-sm text-muted">
+      {message}
+    </p>
+  );
 }

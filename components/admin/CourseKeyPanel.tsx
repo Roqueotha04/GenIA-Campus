@@ -8,8 +8,8 @@ interface CourseKeyPanelProps {
 
 export function CourseKeyPanel({ courseId, enrollmentKey }: CourseKeyPanelProps) {
   return (
-    <div className="space-y-5">
-      <p className="font-mono text-3xl font-semibold tracking-[0.2em] text-foreground">
+    <div className="space-y-4">
+      <p className="font-mono text-2xl font-semibold tracking-[0.2em] text-foreground">
         {enrollmentKey || "Sin clave"}
       </p>
       <AdminForm

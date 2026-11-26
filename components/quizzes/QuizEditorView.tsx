@@ -33,7 +33,7 @@ export function QuizEditorView({ course, quiz, questions, summaries }: QuizEdito
           { label: quiz.title },
         ]}
       />
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <SectionHeading level={1} title={quiz.title} eyebrow="Editar cuestionario" subtitle={course.title} />
         <div className="flex flex-wrap items-start gap-3">
           <Button href={buildCourseQuizHref(course, quiz.id)} variant="outline" size="sm">
@@ -42,16 +42,16 @@ export function QuizEditorView({ course, quiz, questions, summaries }: QuizEdito
           <QuizPublishForm quizId={quiz.id} isPublished={quiz.is_published} />
         </div>
       </div>
-      <p className="mt-6 flex items-center gap-2 text-sm text-muted">
+      <p className="mt-3 flex items-center gap-2 text-sm text-muted">
         <StatusDot tone={quiz.is_published ? "available" : "empty"} />
         {quiz.is_published
           ? "Publicado: los alumnos pueden rendirlo cuando lo sumes a una sección."
           : "Borrador: los alumnos no lo ven hasta que lo publiques."}
       </p>
-      <div className="mt-12 space-y-16">
+      <div className="mt-6 space-y-8">
         <div>
-          <SectionHeading title="Datos generales" eyebrow="Configuración" />
-          <div className="mt-8 border border-line bg-surface p-5 md:p-8">
+          <SectionHeading title="Datos generales" />
+          <div className="mt-3 border border-line bg-surface p-4 md:p-5">
             <QuizSettingsForm quiz={quiz} questionCount={questions.length} />
           </div>
         </div>

@@ -32,7 +32,7 @@ export function QuestionEditor({ quizId, question }: QuestionEditorProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <HiddenFields fields={{ quizId, questionId: question?.id ?? "" }} />
       {question ? (
         <input type="hidden" name="kind" value={question.kind} />
@@ -46,7 +46,7 @@ export function QuestionEditor({ quizId, question }: QuestionEditorProps) {
             name="kind"
             value={kind}
             onChange={(event) => setKind(event.target.value as Question["kind"])}
-            className="mt-2 h-12 w-full rounded-sm border border-line bg-surface px-4 text-base text-foreground transition-colors focus:border-primary"
+            className="mt-1.5 h-10 w-full rounded-sm border border-line bg-surface px-3 text-sm text-foreground transition-colors focus:border-primary"
           >
             {kindEntries.map(([value, label]) => (
               <option key={value} value={value}>

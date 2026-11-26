@@ -1,33 +1,36 @@
 import type { Metadata } from "next";
 import { AdminPage } from "@/components/admin/AdminPage";
-import { AdminPanel } from "@/components/admin/AdminPanel";
-import { CourseCreateForm } from "@/components/admin/CourseCreateForm";
+import { CourseCreationPanel } from "@/components/admin/CourseCreationPanel";
 import { CourseList } from "@/components/admin/CourseList";
-import { ADMIN_PATH } from "@/lib/admin/admin-paths";
+import { CreationPanelProvider } from "@/components/admin/CreationPanelProvider";
+import { CreationSuccessAlert } from "@/components/admin/CreationSuccessAlert";
+import { OpenCreationPanelButton } from "@/components/admin/OpenCreationPanelButton";
+import { ResultCount } from "@/components/admin/ResultCount";
+import { NEW_ENTITY_FLAG } from "@/lib/admin/admin-paths";
 import { listCoursesWithCounts } from "@/lib/admin/admin-queries";
+import { courseModuleOptions } from "@/lib/admin/course-options";
 
 export const metadata: Metadata = { title: "Cursos" };
 
-export default async function AdminCoursesPage() {
-  const courses = await listCoursesWithCounts();
+interface AdminCoursesPageProps {
+  searchParams: Promise<{ nuevo?: string }>;
+}
+
+export default async function AdminCoursesPage({ searchParams }: AdminCoursesPageProps) {
+  const [{ nuevo }, courses] = await Promise.all([searchParams, listCoursesWithCounts()]);
 
   return (
-    <AdminPage
-      breadcrumb={[
-        { label: "Campus", href: "/campus" },
-        { label: "Administración", href: ADMIN_PATH },
-        { label: "Cursos" },
-      ]}
-      title="Cursos"
-      subtitle="Cada curso corresponde a un módulo del campus. Entrá a uno para manejar docentes y alumnos."
-    >
-      <CourseList courses={courses} />
-      <AdminPanel
-        title="Crear curso"
-        description="Hay un solo curso por nivel y módulo. Si ya existe, lo encontrás en el listado."
+    <CreationPanelProvider initiallyOpen={nuevo === NEW_ENTITY_FLAG}>
+      <AdminPage
+        title="Cursos"
+        subtitle="Cada curso corresponde a un módulo del campus. Entrá a uno para manejar docentes y alumnos."
+        actions={<OpenCreationPanelButton label="Nuevo curso" />}
       >
-        <CourseCreateForm />
-      </AdminPanel>
-    </AdminPage>
+        <CreationSuccessAlert />
+        <ResultCount count={courses.length} singularLabel="curso" pluralLabel="cursos" />
+        <CourseList courses={courses} />
+      </AdminPage>
+      <CourseCreationPanel moduleOptions={courseModuleOptions} />
+    </CreationPanelProvider>
   );
 }

@@ -59,6 +59,13 @@ body {
   outline-offset: 3px;
 }
 
+.theme-campus {
+  --font-heading-face: var(--font-roboto);
+  --font-body-face: var(--font-roboto);
+  --font-accent-face: var(--font-roboto);
+  font-family: var(--font-body-face);
+}
+
 .surface-dark {
   --ring: var(--cyan);
 }

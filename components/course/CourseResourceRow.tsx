@@ -16,8 +16,9 @@ function CourseResourceRowContent({ resource }: { resource: CourseResourceItem }
   return (
     <>
       <CourseResourceIcon kind={resource.kind} className="h-6 w-6 shrink-0 text-primary" />
-      <span className="flex-1 text-base text-foreground group-hover:text-primary">
-        {resource.title}
+      <span className="min-w-0 flex-1">
+        <span className="block text-base text-foreground group-hover:text-primary">{resource.title}</span>
+        {resource.subtitle && <span className="mt-0.5 block text-sm text-muted">{resource.subtitle}</span>}
       </span>
       <span className="hidden text-sm text-muted sm:inline">{resolveActionLabel(resource)}</span>
       <ActionIcon className="h-5 w-5 shrink-0 text-muted group-hover:text-primary" />

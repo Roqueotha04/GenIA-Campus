@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Instrument_Serif } from "next/font/google";
+import { Geist, Instrument_Serif, Roboto } from "next/font/google";
 import "./globals.css";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 
@@ -23,6 +23,13 @@ const accentFont = Instrument_Serif({
   display: "swap",
 });
 
+const campusFont = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Campus Generación IA",
@@ -38,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${headingFont.variable} ${bodyFont.variable} ${accentFont.variable} h-full antialiased`}
+      className={`${headingFont.variable} ${bodyFont.variable} ${accentFont.variable} ${campusFont.variable} h-full antialiased`}
     >
       <body className="min-h-full font-body">
         <MotionProvider>{children}</MotionProvider>

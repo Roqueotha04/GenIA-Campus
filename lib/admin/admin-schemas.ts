@@ -24,6 +24,8 @@ const checkboxField = z
 
 export const roleFilterSchema = roleField.nullable().catch(null);
 
+export const searchTermSchema = z.string().trim().max(80).catch("");
+
 export const createUserSchema = z.object({
   fullName: fullNameField,
   email: emailField,

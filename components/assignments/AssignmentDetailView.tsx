@@ -24,7 +24,7 @@ export function AssignmentDetailView({
   children,
 }: AssignmentDetailViewProps) {
   return (
-    <Section className="py-8 md:py-12">
+    <Section>
       <CourseBreadcrumb course={course} levelName={levelName} currentLabel={assignment.title} />
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeading

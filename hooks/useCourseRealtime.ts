@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser-client";
 
-export type CourseRealtimeTable = "resources" | "assignments" | "notices" | "sections";
+export type CourseRealtimeTable = "resources" | "assignments" | "forums" | "notices" | "sections";
 
 export interface CourseChange {
   table: CourseRealtimeTable;
@@ -11,7 +11,7 @@ export interface CourseChange {
   title: string | null;
 }
 
-const WATCHED_TABLES: CourseRealtimeTable[] = ["resources", "assignments", "notices", "sections"];
+const WATCHED_TABLES: CourseRealtimeTable[] = ["resources", "assignments", "forums", "notices", "sections"];
 
 function readTitle(record: object): string | null {
   const title: unknown = Reflect.get(record, "title");

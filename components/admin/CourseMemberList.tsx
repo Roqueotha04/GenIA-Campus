@@ -27,10 +27,10 @@ export function CourseMemberList({
       {members.map((member) => (
         <li
           key={member.id}
-          className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="min-w-0">
-            <p className="font-medium text-foreground">{member.full_name}</p>
+            <p className="text-sm font-medium text-foreground">{member.full_name}</p>
             <p className="break-all text-sm text-muted">{member.email}</p>
           </div>
           <ConfirmActionForm

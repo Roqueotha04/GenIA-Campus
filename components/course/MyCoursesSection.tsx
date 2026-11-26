@@ -20,7 +20,7 @@ export function MyCoursesSection({ courses, role }: MyCoursesSectionProps) {
   return (
     <div>
       <SectionHeading title="Mis cursos" />
-      <div className="mt-8">
+      <div className="mt-3">
         {courses.length === 0 ? (
           <p className="max-w-xl text-sm leading-relaxed text-muted">{emptyMessages[role]}</p>
         ) : (

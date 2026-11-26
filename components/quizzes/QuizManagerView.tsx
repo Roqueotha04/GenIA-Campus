@@ -26,19 +26,19 @@ export function QuizManagerView({ course, quizzes }: QuizManagerViewProps) {
           { label: "Cuestionarios" },
         ]}
       />
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <SectionHeading level={1} title="Cuestionarios" eyebrow={course.title} />
         <Button href={manageHref} variant="outline" size="sm">
           Volver a gestionar el curso
         </Button>
       </div>
-      <div className="mt-12 space-y-12">
+      <div className="mt-6 space-y-6">
         {quizzes.length === 0 ? (
-          <p className="text-muted">
+          <p className="text-sm text-muted">
             Todavía no hay cuestionarios. Creá el primero, cargale preguntas y publicalo para sumarlo a una sección.
           </p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-2">
             {quizzes.map((quiz) => (
               <QuizListItem
                 key={quiz.id}
@@ -49,8 +49,8 @@ export function QuizManagerView({ course, quizzes }: QuizManagerViewProps) {
             ))}
           </ul>
         )}
-        <div className="border border-line bg-surface p-5 md:p-8">
-          <p className="mb-4 font-medium text-foreground">Nuevo cuestionario</p>
+        <div className="border border-line bg-surface p-4 md:p-5">
+          <p className="mb-3 text-sm font-semibold text-foreground">Nuevo cuestionario</p>
           <QuizCreateForm courseId={course.id} />
         </div>
       </div>

@@ -19,18 +19,18 @@ export function QuizTakeView({ course, levelName, quizId, quiz, previewNotice }:
   const moduleHref = buildCourseHref(course);
 
   return (
-    <Section className="py-8 md:py-12">
+    <Section>
       <CourseBreadcrumb course={course} levelName={levelName} currentLabel={quiz.title} />
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <SectionHeading level={1} eyebrow="Cuestionario" title={quiz.title} subtitle={course.title} />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeading level={1} title={quiz.title} subtitle={course.title} />
         <Button href={moduleHref} variant="outline" size="sm">
           <ArrowLeftIcon className="h-4 w-4" />
           Volver al módulo
         </Button>
       </div>
-      <div className="mt-12">
+      <div className="mt-6">
         {quiz.questions.length === 0 ? (
-          <p className="text-muted">
+          <p className="text-sm text-muted">
             Este cuestionario todavía no tiene preguntas. Va a estar disponible cuando tu docente las cargue.
           </p>
         ) : (

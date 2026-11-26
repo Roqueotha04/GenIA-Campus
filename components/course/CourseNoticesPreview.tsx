@@ -22,18 +22,18 @@ export function CourseNoticesPreview({ notices, noticesHref }: CourseNoticesPrev
         </Link>
       </div>
       {notices.length === 0 ? (
-        <p className="mt-6 text-sm text-muted">
+        <p className="mt-3 text-sm text-muted">
           Todavía no hay avisos. Cuando tu docente publique uno, aparece acá.
         </p>
       ) : (
-        <ul className="mt-6 divide-y divide-line border border-line bg-surface">
+        <ul className="mt-3 divide-y divide-line border border-line bg-surface">
           {notices.map((notice) => (
-            <li key={notice.id} className="p-5 md:px-6">
-              <p className="font-heading text-lg font-semibold tracking-tight text-foreground">
+            <li key={notice.id} className="px-4 py-3">
+              <p className="font-heading text-base font-semibold text-foreground">
                 {notice.title}
               </p>
-              <p className="mt-1 text-sm text-muted">{notice.createdLabel}</p>
-              <p className="mt-3 line-clamp-2 max-w-3xl text-sm leading-relaxed text-foreground">
+              <p className="mt-0.5 text-xs text-muted">{notice.createdLabel}</p>
+              <p className="mt-2 line-clamp-2 max-w-3xl text-sm leading-relaxed text-foreground">
                 {notice.body}
               </p>
             </li>

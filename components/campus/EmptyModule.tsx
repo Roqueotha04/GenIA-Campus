@@ -14,11 +14,10 @@ export function EmptyModule({ levelSlug, levelName, moduleNumber }: EmptyModuleP
       <SectionHeading
         level={1}
         eyebrow={`${levelName} · Módulo ${moduleNumber}`}
-        title="Todavía no hay nada cargado"
-        accent="en este módulo."
+        title="Todavía no hay contenido en este módulo"
         subtitle="Cuando tu docente publique la presentación y la actividad, las vas a ver acá."
       />
-      <div className="mt-10">
+      <div className="mt-6">
         <Button href={`/campus/${levelSlug}`} variant="outline">
           <ArrowLeftIcon className="h-4 w-4" />
           Volver a los módulos

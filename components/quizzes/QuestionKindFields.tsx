@@ -30,7 +30,7 @@ function ChoiceFields({ allowMultiple, question }: { allowMultiple: boolean; que
     : "Completá las 4 opciones y marcá la correcta.";
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <p className="text-xs text-muted">{hint}</p>
       {Array.from({ length: optionCount }, (_, index) => (
         <ChoiceOptionField
@@ -47,7 +47,7 @@ function ChoiceFields({ allowMultiple, question }: { allowMultiple: boolean; que
 
 function WrittenFields({ question }: { question?: Question }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <TextAreaField
         label="Respuesta esperada"
         name="expectedAnswer"

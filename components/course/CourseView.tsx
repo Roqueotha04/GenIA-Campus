@@ -24,11 +24,11 @@ interface CourseViewProps {
 
 function EmptyCourse() {
   return (
-    <div className="border border-line bg-surface p-8 md:p-12">
-      <p className="font-heading text-xl font-semibold tracking-tight text-foreground">
+    <div className="border border-line bg-surface p-5">
+      <p className="font-heading text-base font-semibold text-foreground">
         Todavía no hay material
       </p>
-      <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
+      <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted">
         Tu docente todavía no cargó material. Cuando lo haga, aparece acá al instante.
       </p>
     </div>
@@ -46,7 +46,7 @@ export function CourseView({ course, levelName, canManage, sections, recentNotic
     <Section>
       <CourseBreadcrumb course={course} levelName={levelName} />
       <Reveal>
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionHeading
             level={1}
             eyebrow={`${levelName} · Módulo ${course.module_number}`}
@@ -60,14 +60,14 @@ export function CourseView({ course, levelName, canManage, sections, recentNotic
           )}
         </div>
       </Reveal>
-      <Reveal delay={0.1} className="mt-10">
+      <Reveal delay={0.1} className="mt-6">
         {sections.length === 0 ? (
           <EmptyCourse />
         ) : (
           <Accordion items={accordionItems} defaultOpenIds={accordionItems.map((item) => item.id)} />
         )}
       </Reveal>
-      <Reveal delay={0.15} className="mt-14">
+      <Reveal delay={0.15} className="mt-8">
         <CourseNoticesPreview notices={recentNotices} noticesHref={buildCourseNoticesHref(course)} />
       </Reveal>
       <CourseLiveUpdates courseId={course.id} />

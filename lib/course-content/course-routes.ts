@@ -18,6 +18,18 @@ export function buildCourseAssignmentHref(course: CourseLocation, assignmentId: 
   return `${buildCourseHref(course)}/entregas/${assignmentId}`;
 }
 
+export function buildCourseForumHref(course: CourseLocation, forumId: string): string {
+  return `${buildCourseHref(course)}/foros/${forumId}`;
+}
+
+export function buildCourseForumTopicHref(
+  course: CourseLocation,
+  forumId: string,
+  topicId: string,
+): string {
+  return `${buildCourseForumHref(course, forumId)}/${topicId}`;
+}
+
 export function buildCourseManageHref(course: CourseLocation): string {
   return `${buildCourseHref(course)}/gestionar`;
 }

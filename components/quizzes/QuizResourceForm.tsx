@@ -9,7 +9,12 @@ import {
   type PublishedQuizOption,
 } from "@/lib/quizzes/quiz-resource-actions";
 
-export function QuizResourceForm({ sectionId }: { sectionId: string }) {
+interface QuizResourceFormProps {
+  sectionId: string;
+  onCreated?: () => void;
+}
+
+export function QuizResourceForm({ sectionId, onCreated }: QuizResourceFormProps) {
   const [options, setOptions] = useState<PublishedQuizOption[] | null>(null);
 
   useEffect(() => {
@@ -27,7 +32,7 @@ export function QuizResourceForm({ sectionId }: { sectionId: string }) {
   if (options.length === 0) {
     return (
       <p className="text-sm text-muted">
-        No hay cuestionarios publicados en este curso. Creá uno y publicalo desde Cuestionarios.
+        Todavía no hay cuestionarios publicados en este curso. Cuando publiques uno, lo vas a poder agregar desde acá.
       </p>
     );
   }
@@ -38,6 +43,7 @@ export function QuizResourceForm({ sectionId }: { sectionId: string }) {
       hiddenFields={{ sectionId }}
       submitLabel="Agregar cuestionario"
       pendingLabel="Agregando…"
+      onSuccess={onCreated}
     >
       <SelectField label="Cuestionario" name="quizId" options={options} required />
     </ActionForm>

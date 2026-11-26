@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/current-profile";
 import { errorState, successState, type FormState } from "@/lib/forms/form-state";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
-import { ADMIN_COURSES_PATH, ADMIN_PATH, buildAdminCoursePath } from "./admin-paths";
+import {
+  ADMIN_COURSES_PATH,
+  ADMIN_PATH,
+  buildAdminCoursePath,
+  buildAdminUserPath,
+} from "./admin-paths";
 import {
   courseIdSchema,
   courseStudentSchema,
@@ -25,6 +30,11 @@ function revalidateCoursePages(courseId: string) {
   revalidatePath(buildAdminCoursePath(courseId));
 }
 
+function revalidateMembershipPages(courseId: string, profileId: string) {
+  revalidateCoursePages(courseId);
+  revalidatePath(buildAdminUserPath(profileId));
+}
+
 export async function createCourse(_previousState: FormState, formData: FormData): Promise<FormState> {
   await requireRole("admin");
 
@@ -35,26 +45,25 @@ export async function createCourse(_previousState: FormState, formData: FormData
   if (!choice) return errorState("Ese nivel y módulo no existen en el campus. Elegí uno de la lista.");
 
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("courses")
-    .insert({
-      level_slug: choice.levelSlug,
-      module_number: choice.moduleNumber,
-      title: parsed.data.title || choice.label,
-      description: parsed.data.description,
-      is_published: parsed.data.isPublished,
-    })
-    .select("id")
-    .single();
+  const courseTitle = parsed.data.title || choice.label;
+  const { error } = await supabase.from("courses").insert({
+    level_slug: choice.levelSlug,
+    module_number: choice.moduleNumber,
+    title: courseTitle,
+    description: parsed.data.description,
+    is_published: parsed.data.isPublished,
+  });
 
   if (error?.code === UNIQUE_VIOLATION_CODE) {
     return errorState(`Ya existe un curso para ${choice.label}. Buscalo en el listado para editarlo.`);
   }
-  if (error || !data) return errorState(GENERIC_FAILURE_MESSAGE);
+  if (error) return errorState(GENERIC_FAILURE_MESSAGE);
 
   revalidatePath(ADMIN_PATH);
   revalidatePath(ADMIN_COURSES_PATH);
-  redirect(`${buildAdminCoursePath(data.id)}?creado=1`);
+  return successState(
+    `Creamos el curso ${courseTitle}. Entrá desde el listado para asignar docentes e inscribir alumnos.`,
+  );
 }
 
 export async function updateCourse(_previousState: FormState, formData: FormData): Promise<FormState> {
@@ -111,7 +120,7 @@ export async function assignTeacher(_previousState: FormState, formData: FormDat
   if (error?.code === UNIQUE_VIOLATION_CODE) return errorState("Ese docente ya está asignado al curso.");
   if (error) return errorState(GENERIC_FAILURE_MESSAGE);
 
-  revalidateCoursePages(parsed.data.courseId);
+  revalidateMembershipPages(parsed.data.courseId, parsed.data.teacherId);
   return successState("Asignamos al docente al curso.");
 }
 
@@ -129,7 +138,7 @@ export async function removeTeacher(_previousState: FormState, formData: FormDat
     .eq("teacher_id", parsed.data.teacherId);
   if (error) return errorState(GENERIC_FAILURE_MESSAGE);
 
-  revalidateCoursePages(parsed.data.courseId);
+  revalidateMembershipPages(parsed.data.courseId, parsed.data.teacherId);
   return successState("Quitamos al docente del curso.");
 }
 
@@ -147,7 +156,7 @@ export async function enrollStudent(_previousState: FormState, formData: FormDat
   if (error?.code === UNIQUE_VIOLATION_CODE) return errorState("Ese alumno ya está inscripto en el curso.");
   if (error) return errorState(GENERIC_FAILURE_MESSAGE);
 
-  revalidateCoursePages(parsed.data.courseId);
+  revalidateMembershipPages(parsed.data.courseId, parsed.data.studentId);
   return successState("Inscribimos al alumno en el curso.");
 }
 
@@ -168,7 +177,7 @@ export async function removeEnrollment(
     .eq("student_id", parsed.data.studentId);
   if (error) return errorState(GENERIC_FAILURE_MESSAGE);
 
-  revalidateCoursePages(parsed.data.courseId);
+  revalidateMembershipPages(parsed.data.courseId, parsed.data.studentId);
   return successState("Quitamos al alumno del curso.");
 }
 

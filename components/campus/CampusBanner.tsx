@@ -1,4 +1,5 @@
 import { Logo } from "@/components/ui/Logo";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 interface CampusBannerProps {
   greeting: string;
@@ -7,12 +8,9 @@ interface CampusBannerProps {
 
 export function CampusBanner({ greeting, message }: CampusBannerProps) {
   return (
-    <div className="surface-dark flex flex-col gap-8 rounded-sm bg-navy p-8 text-white md:flex-row md:items-end md:justify-between md:p-12">
-      <div>
-        <p className="font-accent text-3xl italic text-cyan md:text-4xl">{greeting}</p>
-        <p className="mt-3 max-w-md text-base leading-relaxed text-white/70">{message}</p>
-      </div>
-      <Logo className="h-5 shrink-0 md:h-6" />
+    <div className="surface-dark flex flex-col gap-4 rounded-sm bg-navy p-5 md:flex-row md:items-center md:justify-between md:p-6">
+      <SectionHeading level={1} tone="onDark" title={greeting} subtitle={message} />
+      <Logo className="h-5 shrink-0" />
     </div>
   );
 }

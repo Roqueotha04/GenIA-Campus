@@ -7,16 +7,17 @@ interface SectionEditFormProps {
   sectionId: string;
   title: string;
   description: string;
+  onSaved?: () => void;
 }
 
-export function SectionEditForm({ sectionId, title, description }: SectionEditFormProps) {
+export function SectionEditForm({ sectionId, title, description, onSaved }: SectionEditFormProps) {
   return (
     <ActionForm
       action={updateSectionAction}
       hiddenFields={{ sectionId }}
       submitLabel="Guardar cambios"
       pendingLabel="Guardando…"
-      variant="outline"
+      onSuccess={onSaved}
     >
       <TextField label="Título" name="title" defaultValue={title} required />
       <TextAreaField label="Descripción" name="description" defaultValue={description} rows={3} />

@@ -12,7 +12,7 @@ export function PasswordResetRequestForm() {
   const [state, formAction] = useActionState(requestPasswordReset, idleFormState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} className="flex flex-col gap-4">
       <TextField label="Email" name="email" type="email" autoComplete="email" required />
       <FormStateMessage state={state} />
       <SubmitButton pendingLabel="Enviando…" className="w-full">

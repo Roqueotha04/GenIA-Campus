@@ -10,20 +10,20 @@ export function MyCourseCard({ course }: { course: CourseSummary }) {
   return (
     <Link
       href={buildCourseHref(course)}
-      className="group flex flex-col border border-line bg-surface p-6 transition-colors hover:border-navy"
+      className="group flex flex-col border border-line bg-surface p-4 transition-colors hover:border-navy"
     >
-      <p className="text-xs uppercase tracking-[0.2em] text-muted">
+      <p className="text-xs text-muted">
         {levelName} · Módulo {course.module_number}
       </p>
-      <h3 className="mt-4 font-heading text-xl font-semibold tracking-tight text-foreground">
+      <h3 className="mt-1 font-heading text-base font-semibold text-foreground group-hover:text-primary">
         {course.title}
       </h3>
-      <div className="mt-8 flex flex-1 items-end justify-between gap-4">
-        <p className="flex items-center gap-2 text-sm text-foreground">
+      <div className="mt-4 flex flex-1 items-end justify-between gap-3">
+        <p className="flex items-center gap-2 text-sm text-muted">
           <StatusDot tone={course.is_published ? "available" : "empty"} />
           {course.is_published ? "Publicado" : "Borrador"}
         </p>
-        <ArrowRightIcon className="h-5 w-5 shrink-0 text-foreground transition-transform group-hover:translate-x-1" />
+        <ArrowRightIcon className="h-4 w-4 shrink-0 text-muted transition-transform group-hover:translate-x-1 group-hover:text-primary" />
       </div>
     </Link>
   );

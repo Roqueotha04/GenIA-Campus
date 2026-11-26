@@ -6,8 +6,9 @@ import { createSignedDownloadUrls } from "@/lib/storage/signed-downloads";
 import type { CourseSummary } from "@/lib/courses/course-access";
 import {
   buildCourseSections,
+  buildDueDatesByAssignment,
   collectFilePaths,
-  type AssignmentRow,
+  type AssignmentDueRow,
   type ResourceRow,
   type SectionRow,
 } from "./build-course-sections";
@@ -38,27 +39,28 @@ export const getCourseSections = cache(
         .order("created_at"),
       supabase
         .from("resources")
-        .select("id, section_id, kind, title, storage_path, url, game_slug, quiz_id")
+        .select("id, section_id, kind, title, storage_path, url, game_slug, quiz_id, assignment_id, forum_id")
         .eq("course_id", course.id)
         .order("position")
         .order("created_at"),
-      supabase
-        .from("assignments")
-        .select("id, section_id, title, due_at")
-        .eq("course_id", course.id)
-        .order("due_at", { ascending: true, nullsFirst: false })
-        .order("created_at"),
+      supabase.from("assignments").select("id, due_at").eq("course_id", course.id),
     ]);
 
     const sections: SectionRow[] = sectionsResult.data ?? [];
     const resources: ResourceRow[] = resourcesResult.data ?? [];
-    const assignments: AssignmentRow[] = assignmentsResult.data ?? [];
+    const assignments: AssignmentDueRow[] = assignmentsResult.data ?? [];
     const signedUrls = await createSignedDownloadUrls(
       COURSE_MATERIALS_BUCKET,
       collectFilePaths(resources),
     );
 
-    return buildCourseSections({ course, sections, resources, assignments, signedUrls });
+    return buildCourseSections({
+      course,
+      sections,
+      resources,
+      signedUrls,
+      dueDatesByAssignment: buildDueDatesByAssignment(assignments),
+    });
   },
 );
 

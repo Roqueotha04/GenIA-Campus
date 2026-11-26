@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AdminDetailLayout } from "@/components/admin/AdminDetailLayout";
 import { AdminPage } from "@/components/admin/AdminPage";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { ConfirmActionForm } from "@/components/admin/ConfirmActionForm";
@@ -8,8 +9,7 @@ import { CourseKeyPanel } from "@/components/admin/CourseKeyPanel";
 import { CourseMemberList } from "@/components/admin/CourseMemberList";
 import { CourseProfileAssignForm } from "@/components/admin/CourseProfileAssignForm";
 import { Button } from "@/components/ui/Button";
-import { FormAlert } from "@/components/ui/FormAlert";
-import { ADMIN_COURSES_PATH, ADMIN_PATH } from "@/lib/admin/admin-paths";
+import { ADMIN_COURSES_PATH } from "@/lib/admin/admin-paths";
 import { courseIdSchema } from "@/lib/admin/admin-schemas";
 import { findCourseDetail, listAssignableProfiles } from "@/lib/admin/admin-queries";
 import {
@@ -26,11 +26,10 @@ export const metadata: Metadata = { title: "Gestionar curso" };
 
 interface AdminCoursePageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ creado?: string }>;
 }
 
-export default async function AdminCoursePage({ params, searchParams }: AdminCoursePageProps) {
-  const [{ id }, { creado }] = await Promise.all([params, searchParams]);
+export default async function AdminCoursePage({ params }: AdminCoursePageProps) {
+  const { id } = await params;
 
   const parsedId = courseIdSchema.safeParse({ id });
   if (!parsedId.success) notFound();
@@ -46,86 +45,87 @@ export default async function AdminCoursePage({ params, searchParams }: AdminCou
 
   return (
     <AdminPage
-      breadcrumb={[
-        { label: "Campus", href: "/campus" },
-        { label: "Administración", href: ADMIN_PATH },
-        { label: "Cursos", href: ADMIN_COURSES_PATH },
-        { label: course.title },
-      ]}
+      backLink={{ href: ADMIN_COURSES_PATH, label: "Cursos" }}
       title={course.title}
       subtitle={describeCourseModule(course.level_slug, course.module_number)}
-    >
-      {creado && <FormAlert tone="success" message="Creamos el curso. Ahora podés asignar docentes e inscribir alumnos." />}
-      <div>
+      actions={
         <Button href={buildCourseHref(course)} variant="outline" size="sm">
           Ver curso
         </Button>
-      </div>
-      <AdminPanel title="Datos del curso">
-        <CourseEditForm course={course} />
-      </AdminPanel>
-      <AdminPanel
-        title="Clave de inscripción"
-        description="Los alumnos la usan para inscribirse solos. Si la regenerás, la anterior deja de servir."
+      }
+    >
+      <AdminDetailLayout
+        aside={
+          <>
+            <AdminPanel
+              title="Clave de inscripción"
+              description="Los alumnos la usan para inscribirse solos. Si la regenerás, la anterior deja de servir."
+            >
+              <CourseKeyPanel courseId={course.id} enrollmentKey={enrollmentKey} />
+            </AdminPanel>
+            <AdminPanel
+              title="Eliminar curso"
+              description="Borra el curso con sus inscripciones, docentes asignados y contenido. No se puede deshacer."
+            >
+              <ConfirmActionForm
+                action={deleteCourse}
+                hiddenFields={{ id: course.id }}
+                label="Eliminar curso"
+                confirmLabel="Confirmar eliminación"
+                pendingLabel="Eliminando..."
+              />
+            </AdminPanel>
+          </>
+        }
       >
-        <CourseKeyPanel courseId={course.id} enrollmentKey={enrollmentKey} />
-      </AdminPanel>
-      <AdminPanel title="Docentes" description="Pueden editar el contenido del curso y ver a sus alumnos.">
-        <div className="space-y-6">
-          <CourseMemberList
-            members={teachers}
-            courseId={course.id}
-            memberFieldName="teacherId"
-            removeAction={removeTeacher}
-            removeLabel="Quitar"
-            emptyMessage="Todavía no hay docentes asignados. Elegí uno de la lista de abajo."
-          />
-          <CourseProfileAssignForm
-            action={assignTeacher}
-            courseId={course.id}
-            fieldName="teacherId"
-            fieldLabel="Asignar docente"
-            placeholder="Elegí un docente"
-            submitLabel="Asignar docente"
-            emptyMessage="No quedan docentes activos para asignar. Creá un usuario con rol Docente desde Usuarios."
-            candidates={assignableTeachers}
-          />
-        </div>
-      </AdminPanel>
-      <AdminPanel title="Alumnos inscriptos" description="Se inscriben con la clave o los sumás vos desde acá.">
-        <div className="space-y-6">
-          <CourseMemberList
-            members={students}
-            courseId={course.id}
-            memberFieldName="studentId"
-            removeAction={removeEnrollment}
-            removeLabel="Quitar"
-            emptyMessage="Todavía no hay alumnos inscriptos. Compartí la clave o inscribí uno desde la lista de abajo."
-          />
-          <CourseProfileAssignForm
-            action={enrollStudent}
-            courseId={course.id}
-            fieldName="studentId"
-            fieldLabel="Inscribir alumno"
-            placeholder="Elegí un alumno"
-            submitLabel="Inscribir alumno"
-            emptyMessage="No quedan alumnos activos para inscribir. Creá un usuario con rol Alumno desde Usuarios."
-            candidates={enrollableStudents}
-          />
-        </div>
-      </AdminPanel>
-      <AdminPanel
-        title="Eliminar curso"
-        description="Borra el curso con sus inscripciones, docentes asignados y contenido. No se puede deshacer."
-      >
-        <ConfirmActionForm
-          action={deleteCourse}
-          hiddenFields={{ id: course.id }}
-          label="Eliminar curso"
-          confirmLabel="Confirmar eliminación"
-          pendingLabel="Eliminando..."
-        />
-      </AdminPanel>
+        <AdminPanel title="Datos del curso">
+          <CourseEditForm course={course} />
+        </AdminPanel>
+        <AdminPanel title="Docentes" description="Pueden editar el contenido del curso y ver a sus alumnos.">
+          <div className="space-y-4">
+            <CourseMemberList
+              members={teachers}
+              courseId={course.id}
+              memberFieldName="teacherId"
+              removeAction={removeTeacher}
+              removeLabel="Quitar"
+              emptyMessage="Todavía no hay docentes asignados. Elegí uno de la lista de abajo."
+            />
+            <CourseProfileAssignForm
+              action={assignTeacher}
+              courseId={course.id}
+              fieldName="teacherId"
+              fieldLabel="Asignar docente"
+              placeholder="Elegí un docente"
+              submitLabel="Asignar docente"
+              emptyMessage="No quedan docentes activos para asignar. Creá un usuario con rol Docente desde Usuarios."
+              candidates={assignableTeachers}
+            />
+          </div>
+        </AdminPanel>
+        <AdminPanel title="Alumnos inscriptos" description="Se inscriben con la clave o los sumás vos desde acá.">
+          <div className="space-y-4">
+            <CourseMemberList
+              members={students}
+              courseId={course.id}
+              memberFieldName="studentId"
+              removeAction={removeEnrollment}
+              removeLabel="Quitar"
+              emptyMessage="Todavía no hay alumnos inscriptos. Compartí la clave o inscribí uno desde la lista de abajo."
+            />
+            <CourseProfileAssignForm
+              action={enrollStudent}
+              courseId={course.id}
+              fieldName="studentId"
+              fieldLabel="Inscribir alumno"
+              placeholder="Elegí un alumno"
+              submitLabel="Inscribir alumno"
+              emptyMessage="No quedan alumnos activos para inscribir. Creá un usuario con rol Alumno desde Usuarios."
+              candidates={enrollableStudents}
+            />
+          </div>
+        </AdminPanel>
+      </AdminDetailLayout>
     </AdminPage>
   );
 }

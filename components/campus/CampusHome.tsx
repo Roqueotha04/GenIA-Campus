@@ -1,5 +1,5 @@
 import { levels } from "@/data/levels";
-import { countModulesWithClasses, formatModuleCount } from "@/lib/catalog";
+import type { Level } from "@/data/schemas";
 import { levelAccentBackground } from "@/lib/level-accent";
 import { Accordion, type AccordionItem } from "@/components/ui/Accordion";
 import { Reveal } from "@/components/ui/Reveal";
@@ -8,49 +8,58 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { MyCoursesSection } from "@/components/course/MyCoursesSection";
 import type { CurrentProfile } from "@/lib/auth/current-profile";
 import type { CourseSummary } from "@/lib/courses/course-access";
+import type { ModuleAvailability } from "@/lib/course-content/course-content-types";
 import { CampusBanner } from "./CampusBanner";
 import { LevelModuleList } from "./LevelModuleList";
 
-const levelItems: AccordionItem[] = levels.map((level) => ({
-  id: level.slug,
-  title: (
-    <span className="flex items-center gap-3">
-      <span aria-hidden className={`h-2 w-2 rounded-full ${levelAccentBackground[level.accent]}`} />
-      {level.name}
-    </span>
-  ),
-  aside: formatModuleCount(level.modules.length),
-  content: <LevelModuleList level={level} />,
-}));
+const FEATURED_LEVEL_SLUG = "adultos";
 
-const levelsWithContentIds = levels
-  .filter((level) => countModulesWithClasses(level) > 0)
-  .map((level) => level.slug);
+const levelsWithFeaturedFirst: Level[] = [
+  ...levels.filter((level) => level.slug === FEATURED_LEVEL_SLUG),
+  ...levels.filter((level) => level.slug !== FEATURED_LEVEL_SLUG),
+];
+
+type AvailabilityByLevel = Record<string, Record<number, ModuleAvailability>>;
+
+function buildLevelItems(availabilityByLevel: AvailabilityByLevel): AccordionItem[] {
+  return levelsWithFeaturedFirst.map((level) => ({
+    id: level.slug,
+    title: (
+      <span className="flex items-center gap-3">
+        <span aria-hidden className={`h-2 w-2 rounded-full ${levelAccentBackground[level.accent]}`} />
+        {level.name}
+      </span>
+    ),
+    content: <LevelModuleList level={level} availability={availabilityByLevel[level.slug]} />,
+  }));
+}
+
+function buildGreeting(profile: CurrentProfile): string {
+  return profile.isGuest ? "Bienvenido" : `Bienvenido, ${profile.full_name}`;
+}
 
 interface CampusHomeProps {
   profile: CurrentProfile;
   myCourses: CourseSummary[];
+  availabilityByLevel?: AvailabilityByLevel;
 }
 
-export function CampusHome({ profile, myCourses }: CampusHomeProps) {
+export function CampusHome({ profile, myCourses, availabilityByLevel = {} }: CampusHomeProps) {
   return (
     <Section>
       <Reveal>
-        <SectionHeading level={1} eyebrow="Campus virtual" title="Campus Generación IA" />
-      </Reveal>
-      <Reveal delay={0.1} className="mt-10">
         <CampusBanner
-          greeting={`Hola, ${profile.full_name}`}
-          message="Elegí un nivel para ver sus módulos, clases, presentaciones y cuestionarios."
+          greeting={buildGreeting(profile)}
+          message="Entrá a tus cursos o elegí un nivel para ver sus módulos."
         />
       </Reveal>
-      <Reveal delay={0.12} className="mt-14">
+      <Reveal delay={0.08} className="mt-8">
         <MyCoursesSection courses={myCourses} role={profile.role} />
       </Reveal>
-      <Reveal delay={0.15} className="mt-14">
+      <Reveal delay={0.12} className="mt-8">
         <SectionHeading title="Niveles" />
-        <div className="mt-8">
-          <Accordion items={levelItems} defaultOpenIds={levelsWithContentIds} />
+        <div className="mt-3">
+          <Accordion items={buildLevelItems(availabilityByLevel)} />
         </div>
       </Reveal>
     </Section>

@@ -18,7 +18,7 @@ export function QuizChoiceInput({
   onToggle,
 }: QuizChoiceInputProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {options.map((option, optionIndex) => (
         <QuizOption
           key={option}

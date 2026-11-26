@@ -11,6 +11,11 @@ export const createQuizSchema = z.object({
   title: z.string().trim().min(1, "Escribí un título para el cuestionario.").max(160, "Usá como máximo 160 caracteres."),
 });
 
+export const createSectionQuizSchema = z.object({
+  sectionId: identifier,
+  title: createQuizSchema.shape.title,
+});
+
 export const updateQuizSchema = z.object({
   quizId: identifier,
   title: createQuizSchema.shape.title,

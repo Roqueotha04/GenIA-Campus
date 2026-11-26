@@ -17,47 +17,57 @@ import { FileInputField } from "./FileInputField";
 
 const DEFAULT_MAX_GRADE = "10";
 
-type AssignmentFormProps =
-  | { mode: "create"; sectionId: string }
-  | { mode: "edit"; assignment: ManagedAssignment };
+interface UploadedAttachment {
+  path: string;
+  name: string;
+}
+
+type AttachmentUpload = { uploaded: true; attachment: UploadedAttachment | null } | { uploaded: false; state: FormState };
+
+interface AssignmentFormProps {
+  sectionId: string;
+  assignment?: ManagedAssignment;
+  onSaved?: () => void;
+}
 
 function readText(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value : "";
 }
 
-export function AssignmentForm(props: AssignmentFormProps) {
-  const assignment = props.mode === "edit" ? props.assignment : null;
-  const sectionId = props.mode === "edit" ? props.assignment.section_id : props.sectionId;
+export function AssignmentForm({ sectionId, assignment, onSaved }: AssignmentFormProps) {
   const [attachment, setAttachment] = useState<File | null>(null);
   const [state, setState] = useState<FormState>(idleFormState);
   const [isSaving, startSaving] = useTransition();
 
+  async function uploadAttachment(): Promise<AttachmentUpload> {
+    if (!attachment) return { uploaded: true, attachment: null };
+    const outcome = await uploadDirectly({
+      file: attachment,
+      bucket: COURSE_MATERIALS_BUCKET,
+      prepare: (fileName, sizeBytes) => prepareMaterialUpload(sectionId, fileName, sizeBytes),
+    });
+    if (!outcome.uploaded) return { uploaded: false, state: errorState(outcome.message) };
+    return { uploaded: true, attachment: { path: outcome.path, name: outcome.name } };
+  }
+
   async function save(formData: FormData): Promise<FormState> {
-    let uploaded: { path: string; name: string } | null = null;
-    if (attachment) {
-      const outcome = await uploadDirectly({
-        file: attachment,
-        bucket: COURSE_MATERIALS_BUCKET,
-        prepare: (fileName, sizeBytes) => prepareMaterialUpload(sectionId, fileName, sizeBytes),
-      });
-      if (!outcome.uploaded) return errorState(outcome.message);
-      uploaded = { path: outcome.path, name: outcome.name };
-    }
+    const upload = await uploadAttachment();
+    if (!upload.uploaded) return upload.state;
 
     const fields = {
       title: readText(formData, "title"),
       instructions: readText(formData, "instructions"),
       dueAt: readText(formData, "dueAt"),
+      cutoffAt: readText(formData, "cutoffAt"),
       maxGrade: Number(readText(formData, "maxGrade")),
-      allowLate: formData.get("allowLate") === "on",
-      attachment: uploaded,
+      attachment: upload.attachment,
     };
 
-    if (props.mode === "edit") {
+    if (assignment) {
       return updateAssignment({
         ...fields,
-        assignmentId: props.assignment.id,
+        assignmentId: assignment.id,
         removeAttachment: formData.get("removeAttachment") === "on",
       });
     }
@@ -66,22 +76,18 @@ export function AssignmentForm(props: AssignmentFormProps) {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(event.currentTarget);
 
     startSaving(async () => {
       const result = await save(formData);
       setState(result);
-      if (result.status === "success" && props.mode === "create") {
-        form.reset();
-        setAttachment(null);
-      }
+      if (result.status === "success") onSaved?.();
     });
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      <TextField label="Título" name="title" defaultValue={assignment?.title} required />
+      <TextField label="Nombre" name="title" defaultValue={assignment?.title} required />
       <TextAreaField
         label="Consigna"
         name="instructions"
@@ -90,7 +96,7 @@ export function AssignmentForm(props: AssignmentFormProps) {
         hint="Explicá qué tienen que entregar y cómo se evalúa."
       />
       <FileInputField
-        label={props.mode === "edit" ? "Reemplazar adjunto (opcional)" : "Adjunto (opcional)"}
+        label={assignment ? "Reemplazar adjunto (opcional)" : "Adjunto (opcional)"}
         disabled={isSaving}
         onFileChange={setAttachment}
       />
@@ -102,24 +108,30 @@ export function AssignmentForm(props: AssignmentFormProps) {
       )}
       <div className="grid gap-4 md:grid-cols-2">
         <TextField
-          label="Fecha límite (hora de Argentina)"
+          label="Fecha de entrega"
           name="dueAt"
           type="datetime-local"
           defaultValue={isoToArgentinaLocal(assignment?.due_at ?? null)}
-          hint="Dejala vacía si no hay fecha límite."
+          hint="Hora de Argentina. Después de esta fecha, las entregas quedan fuera de término."
         />
         <TextField
-          label="Nota máxima"
-          name="maxGrade"
-          type="number"
-          defaultValue={assignment ? String(assignment.max_grade) : DEFAULT_MAX_GRADE}
-          required
+          label="Fecha límite real"
+          name="cutoffAt"
+          type="datetime-local"
+          defaultValue={isoToArgentinaLocal(assignment?.cutoff_at ?? null)}
+          hint="Después de esta fecha no se aceptan entregas. Si la dejás vacía, no cierra."
         />
       </div>
-      <CheckboxField label="Aceptar entregas fuera de término" name="allowLate" defaultChecked={assignment?.allow_late} />
+      <TextField
+        label="Nota máxima"
+        name="maxGrade"
+        type="number"
+        defaultValue={assignment ? String(assignment.max_grade) : DEFAULT_MAX_GRADE}
+        required
+      />
       <FormStateMessage state={state} />
       <ActionButton type="submit" size="sm" disabled={isSaving}>
-        {isSaving ? "Guardando…" : props.mode === "edit" ? "Guardar cambios" : "Crear entrega"}
+        {isSaving ? "Guardando…" : assignment ? "Guardar cambios" : "Crear tarea"}
       </ActionButton>
     </form>
   );

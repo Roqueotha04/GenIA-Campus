@@ -12,7 +12,7 @@ export function TeacherSubmissionsPanel({ assignment, roster }: TeacherSubmissio
 
   return (
     <div>
-      <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">Entregas de los alumnos</h2>
+      <h2 className="text-xl font-semibold text-foreground">Entregas de los alumnos</h2>
       <p className="mt-2 text-sm text-muted">
         {submittedCount} de {roster.length} entregaron.
       </p>

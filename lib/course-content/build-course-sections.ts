@@ -3,6 +3,7 @@ import type { TableRow } from "@/types/database";
 import type { CourseResourceItem, CourseSectionContent } from "./course-content-types";
 import {
   buildCourseAssignmentHref,
+  buildCourseForumHref,
   buildCourseGameHref,
   buildCourseQuizHref,
 } from "./course-routes";
@@ -12,23 +13,36 @@ export type SectionRow = Pick<TableRow<"sections">, "id" | "title" | "descriptio
 
 export type ResourceRow = Pick<
   TableRow<"resources">,
-  "id" | "section_id" | "kind" | "title" | "storage_path" | "url" | "game_slug" | "quiz_id"
+  | "id"
+  | "section_id"
+  | "kind"
+  | "title"
+  | "storage_path"
+  | "url"
+  | "game_slug"
+  | "quiz_id"
+  | "assignment_id"
+  | "forum_id"
 >;
 
-export type AssignmentRow = Pick<TableRow<"assignments">, "id" | "section_id" | "title" | "due_at">;
+export type AssignmentDueRow = Pick<TableRow<"assignments">, "id" | "due_at">;
 
-interface BuildCourseSectionsInput {
+interface ResourceItemContext {
   course: CourseSummary;
-  sections: SectionRow[];
-  resources: ResourceRow[];
-  assignments: AssignmentRow[];
   signedUrls: Map<string, string>;
+  dueDatesByAssignment: Map<string, string | null>;
 }
 
+interface BuildCourseSectionsInput extends ResourceItemContext {
+  sections: SectionRow[];
+  resources: ResourceRow[];
+}
+
+const internalPage = { isDownload: false, opensInNewTab: false };
+
 function toResourceItem(
-  course: CourseSummary,
   resource: ResourceRow,
-  signedUrls: Map<string, string>,
+  { course, signedUrls, dueDatesByAssignment }: ResourceItemContext,
 ): CourseResourceItem {
   const base = { id: resource.id, kind: resource.kind, title: resource.title };
 
@@ -45,16 +59,29 @@ function toResourceItem(
     case "game":
       return {
         ...base,
+        ...internalPage,
         href: resource.game_slug ? buildCourseGameHref(course, resource.game_slug) : null,
-        isDownload: false,
-        opensInNewTab: false,
       };
     case "quiz":
       return {
         ...base,
+        ...internalPage,
         href: resource.quiz_id ? buildCourseQuizHref(course, resource.quiz_id) : null,
-        isDownload: false,
-        opensInNewTab: false,
+      };
+    case "assignment":
+      return {
+        ...base,
+        ...internalPage,
+        href: resource.assignment_id ? buildCourseAssignmentHref(course, resource.assignment_id) : null,
+        subtitle: formatDueLabel(
+          resource.assignment_id ? (dueDatesByAssignment.get(resource.assignment_id) ?? null) : null,
+        ),
+      };
+    case "forum":
+      return {
+        ...base,
+        ...internalPage,
+        href: resource.forum_id ? buildCourseForumHref(course, resource.forum_id) : null,
       };
   }
 }
@@ -65,12 +92,14 @@ export function collectFilePaths(resources: ResourceRow[]): string[] {
   );
 }
 
+export function buildDueDatesByAssignment(assignments: AssignmentDueRow[]): Map<string, string | null> {
+  return new Map(assignments.map((assignment) => [assignment.id, assignment.due_at]));
+}
+
 export function buildCourseSections({
-  course,
   sections,
   resources,
-  assignments,
-  signedUrls,
+  ...context
 }: BuildCourseSectionsInput): CourseSectionContent[] {
   return sections.map((section) => ({
     id: section.id,
@@ -78,14 +107,6 @@ export function buildCourseSections({
     description: section.description,
     resources: resources
       .filter((resource) => resource.section_id === section.id)
-      .map((resource) => toResourceItem(course, resource, signedUrls)),
-    assignments: assignments
-      .filter((assignment) => assignment.section_id === section.id)
-      .map((assignment) => ({
-        id: assignment.id,
-        title: assignment.title,
-        href: buildCourseAssignmentHref(course, assignment.id),
-        dueLabel: formatDueLabel(assignment.due_at),
-      })),
+      .map((resource) => toResourceItem(resource, context)),
   }));
 }

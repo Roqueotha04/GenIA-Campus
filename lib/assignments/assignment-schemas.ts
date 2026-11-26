@@ -18,15 +18,31 @@ const uploadedFileSchema = z.object({
   name: z.string().min(1, "Falta el nombre del archivo.").max(255, "El nombre del archivo es demasiado largo."),
 });
 
-const dueAtSchema = z.string().transform((value, context) => {
-  if (value.trim() === "") return null;
-  const isoDate = argentinaLocalToIso(value.trim());
-  if (!isoDate) {
-    context.addIssue({ code: "custom", message: "La fecha límite no es válida. Elegila de nuevo." });
-    return z.NEVER;
-  }
-  return isoDate;
-});
+const optionalMomentSchema = (invalidMessage: string) =>
+  z.string().transform((value, context) => {
+    if (value.trim() === "") return null;
+    const isoDate = argentinaLocalToIso(value.trim());
+    if (!isoDate) {
+      context.addIssue({ code: "custom", message: invalidMessage });
+      return z.NEVER;
+    }
+    return isoDate;
+  });
+
+interface AssignmentDeadlines {
+  dueAt: string | null;
+  cutoffAt: string | null;
+}
+
+function cutoffIsNotBeforeDue({ dueAt, cutoffAt }: AssignmentDeadlines): boolean {
+  if (!dueAt || !cutoffAt) return true;
+  return new Date(cutoffAt).getTime() >= new Date(dueAt).getTime();
+}
+
+const CUTOFF_BEFORE_DUE = {
+  message: "La fecha límite real tiene que ser igual o posterior a la fecha de entrega.",
+  path: ["cutoffAt"],
+};
 
 const httpUrl = z
   .string()
@@ -43,30 +59,32 @@ const httpUrl = z
   .transform((value) => (value === "" ? null : value));
 
 const assignmentFields = {
-  title: requiredText("Escribí un título para la entrega.", 160),
+  title: requiredText("Escribí un nombre para la tarea.", 160),
   instructions: z.string().trim().max(5000, "Usá como máximo 5000 caracteres."),
-  dueAt: dueAtSchema,
+  dueAt: optionalMomentSchema("La fecha de entrega no es válida. Elegila de nuevo."),
+  cutoffAt: optionalMomentSchema("La fecha límite real no es válida. Elegila de nuevo."),
   maxGrade: z
     .number("Ingresá la nota máxima.")
     .positive("La nota máxima tiene que ser mayor a 0.")
     .max(999, "La nota máxima no puede superar 999."),
-  allowLate: z.boolean(),
 };
 
-export const createAssignmentSchema = z.object({
-  sectionId: identifier,
-  ...assignmentFields,
-  attachment: uploadedFileSchema.nullable(),
-});
+export const createAssignmentSchema = z
+  .object({
+    sectionId: identifier,
+    ...assignmentFields,
+    attachment: uploadedFileSchema.nullable(),
+  })
+  .refine(cutoffIsNotBeforeDue, CUTOFF_BEFORE_DUE);
 
-export const updateAssignmentSchema = z.object({
-  assignmentId: identifier,
-  ...assignmentFields,
-  attachment: uploadedFileSchema.nullable(),
-  removeAttachment: z.boolean(),
-});
-
-export const assignmentIdSchema = z.object({ assignmentId: identifier });
+export const updateAssignmentSchema = z
+  .object({
+    assignmentId: identifier,
+    ...assignmentFields,
+    attachment: uploadedFileSchema.nullable(),
+    removeAttachment: z.boolean(),
+  })
+  .refine(cutoffIsNotBeforeDue, CUTOFF_BEFORE_DUE);
 
 export const submitAssignmentSchema = z.object({
   assignmentId: identifier,

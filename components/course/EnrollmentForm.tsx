@@ -11,7 +11,7 @@ export function EnrollmentForm({ courseId }: { courseId: string }) {
   const [state, formAction] = useActionState(enrollInCourse, idleFormState);
 
   return (
-    <form action={formAction} className="flex max-w-md flex-col gap-6">
+    <form action={formAction} className="flex max-w-md flex-col gap-4">
       <input type="hidden" name="courseId" value={courseId} />
       <TextField
         label="Ingresá la clave del curso"

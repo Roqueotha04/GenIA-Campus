@@ -8,8 +8,7 @@ import { CloseIcon } from "@/components/ui/icons";
 const TOAST_VISIBLE_MS = 6000;
 
 const announcementPrefixes: Partial<Record<CourseRealtimeTable, string>> = {
-  resources: "Nuevo material",
-  assignments: "Nueva entrega",
+  resources: "Nuevo contenido",
   notices: "Nuevo aviso",
 };
 

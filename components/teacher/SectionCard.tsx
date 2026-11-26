@@ -1,11 +1,7 @@
-import { SectionAssignments } from "@/components/assignments/SectionAssignments";
 import type { ManagedSection } from "@/lib/teacher/load-course-management";
-import { deleteSectionAction, moveSectionAction } from "@/lib/teacher/section-actions";
-import { AddResourcePanel } from "./AddResourcePanel";
-import { ConfirmActionForm } from "./ConfirmActionForm";
-import { MoveControls } from "./MoveControls";
+import { AddActivityDialog } from "./AddActivityDialog";
 import { ResourceItem } from "./ResourceItem";
-import { SectionEditForm } from "./SectionEditForm";
+import { SectionMenu } from "./SectionMenu";
 
 interface SectionCardProps {
   section: ManagedSection;
@@ -15,30 +11,26 @@ interface SectionCardProps {
 
 export function SectionCard({ section, isFirst, isLast }: SectionCardProps) {
   return (
-    <li className="border border-line bg-surface p-5 md:p-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <li className="rounded-sm border border-line bg-surface">
+      <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3 md:px-5">
         <div className="min-w-0">
-          <h3 className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-            {section.title}
-          </h3>
-          {section.description && <p className="mt-2 text-sm text-muted">{section.description}</p>}
+          <h3 className="break-words text-base font-semibold text-foreground md:text-lg">{section.title}</h3>
+          {section.description && <p className="mt-1 text-sm text-muted">{section.description}</p>}
         </div>
-        <MoveControls
-          action={moveSectionAction}
-          hiddenFields={{ sectionId: section.id }}
+        <SectionMenu
+          section={{ id: section.id, title: section.title, description: section.description }}
           isFirst={isFirst}
           isLast={isLast}
-          itemLabel={section.title}
         />
       </div>
 
-      <div className="mt-6">
+      <div className="px-4 md:px-5">
         {section.resources.length === 0 ? (
-          <p className="text-sm text-muted">
-            Esta sección todavía no tiene recursos. Agregá un archivo, un enlace o un juego.
+          <p className="py-4 text-sm text-muted">
+            Esta sección todavía está vacía. Añadí un archivo, un foro, una tarea o un cuestionario.
           </p>
         ) : (
-          <ul className="space-y-3">
+          <ul className="divide-y divide-dashed divide-line">
             {section.resources.map((resource, index) => (
               <ResourceItem
                 key={resource.id}
@@ -49,30 +41,8 @@ export function SectionCard({ section, isFirst, isLast }: SectionCardProps) {
             ))}
           </ul>
         )}
+        <AddActivityDialog sectionId={section.id} />
       </div>
-
-      <div className="mt-6">
-        <AddResourcePanel sectionId={section.id} />
-      </div>
-
-      <div className="mt-6">
-        <SectionAssignments sectionId={section.id} assignments={section.assignments} />
-      </div>
-
-      <details className="mt-6 border-t border-line pt-5">
-        <summary className="cursor-pointer text-sm font-medium text-primary">Editar o eliminar sección</summary>
-        <div className="mt-4 space-y-6">
-          <SectionEditForm sectionId={section.id} title={section.title} description={section.description} />
-          <ConfirmActionForm
-            action={deleteSectionAction}
-            hiddenFields={{ sectionId: section.id }}
-            label="Eliminar sección"
-            confirmLabel="Sí, eliminar sección"
-            pendingLabel="Eliminando…"
-            warning="Se borran también todos sus recursos y archivos. No se puede deshacer."
-          />
-        </div>
-      </details>
     </li>
   );
 }

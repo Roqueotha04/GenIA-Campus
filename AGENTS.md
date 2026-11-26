@@ -21,7 +21,9 @@ El clean code se prioriza **siempre**, por encima de la velocidad o la convenien
 **Campus dinámico sobre Supabase** (Auth + Postgres con RLS + Storage + Realtime). Foco en Adultos.
 - **Usuarios**: no hay registro público. El admin crea las cuentas desde `/campus/admin/usuarios` (Supabase Auth + fila en `profiles` con el rol `admin` | `docente` | `alumno`). Una cuenta sin `profile` no puede usar nada. Primer admin: `pnpm create-admin --email … --name "…" --password "…"`.
 - **Cursos** = nivel + módulo (`courses.level_slug` + `module_number`). Los crea el admin, les asigna docentes y los publica. El alumno se inscribe con la **clave del curso**.
-- **Contenido del curso** (secciones, archivos, links, juegos, entregas, avisos, cuestionarios) lo cargan docentes/admin desde `/campus/[nivel]/[modulo]/gestionar`. Los alumnos lo ven en vivo (Realtime).
+- **Contenido del curso** lo cargan docentes/admin desde `/campus/[nivel]/[modulo]/gestionar`, estilo Moodle: cada sección tiene "+ Añadir una actividad o un recurso" con 4 tipos (Archivo, Foro, Tarea, Cuestionario). `resources` es la lista ordenada de ítems de una sección (`kind` file · link · game · quiz · assignment · forum, con `assignment_id`/`forum_id`). Links y juegos ya cargados se muestran, pero no se crean nuevos. Los alumnos lo ven en vivo (Realtime).
+- **Archivo vs Tarea**: el archivo se descarga; la tarea abre su espacio de entrega con `due_at` (fecha de entrega) y `cutoff_at` (fecha límite real: después no se acepta nada; vacía = no cierra). Entregar entre ambas fechas queda marcado fuera de término.
+- **Foros**: `forums` → `forum_topics` → `forum_posts`. Cualquier miembro abre temas y responde; borra el autor o el docente. El invitado no publica.
 - Si un módulo no tiene curso en la base, se muestra el contenido estático de `data/levels.ts` (niveles de niños). No cargar contenido estático nuevo sin que lo pida el dueño.
 - **Acceso de invitado (temporal, hasta el jueves 3/12/2026 inclusive)**: sin sesión, `proxy.ts` entra automáticamente con la cuenta de invitado (`GUEST_EMAIL` / `GUEST_PASSWORD`), inscripta en los cursos de Adultos. El invitado ve todo pero no entrega TPs y sus cuestionarios no se guardan. La fecha de corte está en `lib/auth/guest-access.ts`; pasada esa fecha no hace nada. Para quitarlo: borrar `guest-access.ts` y sus usos (`isGuest`), las variables y la cuenta de invitado.
 - **Juegos HTML**: se cargan a mano en `public/juegos/` y se registran en `data/games.ts`; el docente los agrega a una sección.
@@ -49,16 +51,16 @@ Las rutas (`app/`) **solo componen**: validan params, llaman a `notFound()` y re
 
 ```
 app/          page (landing) · acceso (login, recuperar, nueva-clave) · auth/confirm · campus/…
-components/   ui/ · layout/ · landing/ · auth/ · campus/ (estático) · course/ (alumno) · teacher/ (gestionar) · assignments/ · quizzes/ · admin/ · providers/
+components/   ui/ · layout/ · landing/ · auth/ · campus/ (estático) · course/ (alumno) · teacher/ (gestionar) · assignments/ · forums/ · quizzes/ · admin/ · providers/
 data/         schemas.ts · levels.ts (estructura y contenido estático de niños) · games.ts
 hooks/        useCurrentProfile · useCourseRealtime · useElapsedSeconds
-lib/          supabase/ · auth/ · courses/ · course-content/ · teacher/ · assignments/ · quizzes/ · admin/ · storage/ · forms/ · catalog · quiz-scoring
+lib/          supabase/ · auth/ · courses/ · course-content/ · teacher/ · assignments/ · forums/ · quizzes/ · admin/ · storage/ · forms/ · catalog · quiz-scoring
 supabase/     migrations/ (esquema, RLS, storage, realtime)
 scripts/      create-admin.mts
 public/       logo · juegos/ (HTML)
 ```
 
-- Rutas: `/` landing · `/acceso` login · `/campus` mis cursos + niveles · `/campus/[nivel]` módulos · `/campus/[nivel]/[modulo]` curso (dinámico si existe en la base; si no, estático) · `…/gestionar` (docente/admin) · `…/gestionar/quizzes` · `…/entregas/[id]` · `…/quiz/[quizId]` · `…/juegos/[slug]` · `…/avisos` · `/campus/admin` (usuarios y cursos).
+- Rutas: `/` landing · `/acceso` login · `/campus` mis cursos + niveles · `/campus/[nivel]` módulos · `/campus/[nivel]/[modulo]` curso (dinámico si existe en la base; si no, estático) · `…/gestionar` (docente/admin) · `…/gestionar/quizzes` · `…/entregas/[id]` · `…/foros/[foroId]` · `…/foros/[foroId]/[temaId]` · `…/quiz/[quizId]` · `…/juegos/[slug]` · `…/avisos` · `/campus/admin` (panel con Resumen, Usuarios y Cursos; alta en panel lateral).
 - Slugs de nivel: `nivel-1`, `nivel-2`, `nivel-3`, `adultos`. Módulos: número (niños 1–5, adultos 1–2).
 - `params` y `searchParams` son `Promise` en esta versión de Next: usar `await`.
 - Mutaciones: Server Actions en `lib/**` con `"use server"`, validación Zod y verificación de permisos al inicio; `revalidatePath` de lo que cambia. Formularios con `useActionState` + `FormStateMessage` + `SubmitButton` (o `onSubmit` cuando hay que conservar lo escrito ante errores).
@@ -72,7 +74,7 @@ public/       logo · juegos/ (HTML)
 ## Diseño
 Dirección: **editorial sobria con la paleta de Generación IA**. Nada de look "template AI".
 - Paleta (tokens en `app/globals.css`): navy `#0a1640` (tinta y bandas oscuras), azul eléctrico `#0a2cf0` (acción primaria), cian `#2dd4e0` (detalle puntual), papel `#f6f7fa` (fondo del campus), blanco. El logo es un wordmark blanco: siempre sobre superficies oscuras (`surface-dark`).
-- Tipografía: Geist (títulos/UI, peso fuerte, tracking apretado) + Instrument Serif itálica para la frase de acento (`font-accent italic`).
+- Tipografía: en la landing, Geist + Instrument Serif itálica para la frase de acento. En el campus y el acceso, **Roboto** (clase `.theme-campus`), sin cursivas: look de campus, compacto y minimalista. `SectionHeading`/`Section` son compactos por defecto; la landing pasa `size`/`density="editorial"`.
 - Estructura: mucho aire, cards con línea fina y sin sombra, esquinas rectas (`rounded-sm`), eyebrows en mayúscula espaciada, punto de color como marca de estado. Un color de apoyo por nivel (`level-1`…`level-4`), usado con moderación.
 - Sin gradientes decorativos, glass, glow, emojis ni sombras. La numeración (`01`, `02`) solo donde el orden es real (pasos, módulos).
 - **Mobile-first y responsive sin excepción**: mobile, tablet y desktop.

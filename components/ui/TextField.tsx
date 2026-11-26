@@ -35,10 +35,10 @@ export function TextField({
         defaultValue={defaultValue}
         required={required}
         aria-describedby={hint ? hintId : undefined}
-        className="mt-2 h-12 w-full rounded-sm border border-line bg-surface px-4 text-base text-foreground transition-colors focus:border-primary"
+        className="mt-1.5 h-10 w-full rounded-sm border border-line bg-surface px-3 text-sm text-foreground transition-colors focus:border-primary"
       />
       {hint && (
-        <p id={hintId} className="mt-2 text-xs text-muted">
+        <p id={hintId} className="mt-1.5 text-xs text-muted">
           {hint}
         </p>
       )}

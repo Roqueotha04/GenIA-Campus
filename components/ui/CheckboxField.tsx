@@ -16,7 +16,7 @@ export function CheckboxField({ label, name, defaultChecked }: CheckboxFieldProp
         name={name}
         type="checkbox"
         defaultChecked={defaultChecked}
-        className="h-5 w-5 rounded-sm border border-line accent-primary"
+        className="h-4 w-4 rounded-sm border border-line accent-primary"
       />
       <label htmlFor={fieldId} className="text-sm text-foreground">
         {label}

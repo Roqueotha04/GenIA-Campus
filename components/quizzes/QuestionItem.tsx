@@ -17,13 +17,13 @@ export function QuestionItem({ quizId, question, number, isFirst, isLast }: Ques
   const hiddenFields = { quizId, questionId: question.id };
 
   return (
-    <li className="border border-line bg-surface p-4 md:p-6">
-      <p className="text-[0.7rem] font-medium uppercase tracking-[0.22em] text-muted">
-        {String(number).padStart(2, "0")} · {questionKindLabels[question.kind]}
+    <li className="border border-line bg-surface p-4">
+      <p className="text-xs text-muted">
+        Pregunta {number} · {questionKindLabels[question.kind]}
       </p>
-      <p className="mt-2 break-words font-medium text-foreground">{question.prompt}</p>
+      <p className="mt-1 break-words font-medium text-foreground">{question.prompt}</p>
 
-      <div className="mt-4 flex flex-wrap items-start gap-3">
+      <div className="mt-3 flex flex-wrap items-start gap-3">
         <MoveControls
           action={moveQuestionAction}
           hiddenFields={hiddenFields}
@@ -40,9 +40,9 @@ export function QuestionItem({ quizId, question, number, isFirst, isLast }: Ques
         />
       </div>
 
-      <details className="mt-4">
+      <details className="mt-3">
         <summary className="cursor-pointer text-sm font-medium text-primary">Editar pregunta</summary>
-        <div className="mt-4">
+        <div className="mt-3">
           <QuestionEditor quizId={quizId} question={question} />
         </div>
       </details>
