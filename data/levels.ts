@@ -110,6 +110,15 @@ export const levels = levelSchema.array().parse([
               { label: "TP 3", path: "/material/adultos-modulo-1-clase-3-tp-3.docx" },
             ],
           },
+          {
+            number: 4,
+            title: "Agentes de IA y automatización",
+            summary:
+              "Qué es un agente de IA, qué componentes le dan autonomía y en qué se diferencia de un chatbot. Práctica: agentes locales y en la nube para verificar facturas, analizar carpetas y conciliar planillas.",
+            assignments: [
+              { label: "TP 4", path: "/material/adultos-modulo-1-clase-4-tp-4.pdf" },
+            ],
+          },
         ],
       },
       {
