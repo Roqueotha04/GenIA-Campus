@@ -11,7 +11,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ title, description, children }: AuthLayoutProps) {
   return (
-    <main className="theme-campus font-body grid min-h-screen lg:grid-cols-[0.8fr_1.2fr]">
+    <main className="grid min-h-screen lg:grid-cols-[0.8fr_1.2fr]">
       <section className="surface-dark flex flex-col justify-between gap-8 bg-navy px-6 py-6 text-white md:px-10 lg:py-10">
         <Link href="/" aria-label="Generación IA, inicio">
           <Logo className="h-5 md:h-6" />

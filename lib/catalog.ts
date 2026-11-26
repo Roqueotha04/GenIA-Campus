@@ -1,6 +1,13 @@
 import { levels } from "@/data/levels";
 import type { CourseClass, CourseModule, Level } from "@/data/schemas";
 
+const FEATURED_LEVEL_SLUG = "adultos";
+
+export const levelsWithFeaturedFirst: Level[] = [
+  ...levels.filter((level) => level.slug === FEATURED_LEVEL_SLUG),
+  ...levels.filter((level) => level.slug !== FEATURED_LEVEL_SLUG),
+];
+
 export function findLevel(slug: string): Level | undefined {
   return levels.find((level) => level.slug === slug);
 }
@@ -33,14 +40,6 @@ export function hasClasses(courseModule: CourseModule): boolean {
 
 export function countModulesWithClasses(level: Level): number {
   return level.modules.filter(hasClasses).length;
-}
-
-export function formatModuleCount(count: number): string {
-  return count === 1 ? "1 módulo" : `${count} módulos`;
-}
-
-export function formatClassCount(count: number): string {
-  return count === 1 ? "1 clase" : `${count} clases`;
 }
 
 export function formatNumber(number: number): string {

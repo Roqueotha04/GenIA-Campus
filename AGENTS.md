@@ -67,15 +67,15 @@ public/       logo · juegos/ (HTML)
 - Componentes que usan hooks, `localStorage`, Realtime o Framer Motion son Client Components (`"use client"`). El resto queda sin directiva.
 
 ## Componentes
-- **Reutilizar siempre los componentes ya programados** (`Section`, `SectionHeading`, `Button`/`ActionButton`, `Carousel`, `Eyebrow`, `Reveal`, `StatusDot`). Crear uno nuevo solo si realmente no existe el que se necesita.
+- **Reutilizar siempre los componentes ya programados** (`Section`, `SectionHeading`, `Button`/`ActionButton`, `Carousel`, `Dialog`, `Reveal`, `StatusDot`). Crear uno nuevo solo si realmente no existe el que se necesita.
 - **Listas de elementos → `Carousel`**: scroll horizontal con snap en mobile, grid desde `md`.
 - Todos los `h2` de sección salen de `SectionHeading` (`level={1}` para el `h1` de página). Un solo `h1` por página.
 
 ## Diseño
-Dirección: **editorial sobria con la paleta de Generación IA**. Nada de look "template AI".
+Dirección: **campus sobrio y compacto con la paleta de Generación IA** (estilo Moodle, minimalista). Nada de look "template AI".
 - Paleta (tokens en `app/globals.css`): navy `#0a1640` (tinta y bandas oscuras), azul eléctrico `#0a2cf0` (acción primaria), cian `#2dd4e0` (detalle puntual), papel `#f6f7fa` (fondo del campus), blanco. El logo es un wordmark blanco: siempre sobre superficies oscuras (`surface-dark`).
-- Tipografía: en la landing, Geist + Instrument Serif itálica para la frase de acento. En el campus y el acceso, **Roboto** (clase `.theme-campus`), sin cursivas: look de campus, compacto y minimalista. `SectionHeading`/`Section` son compactos por defecto; la landing pasa `size`/`density="editorial"`.
-- Estructura: mucho aire, cards con línea fina y sin sombra, esquinas rectas (`rounded-sm`), eyebrows en mayúscula espaciada, punto de color como marca de estado. Un color de apoyo por nivel (`level-1`…`level-4`), usado con moderación.
+- Tipografía: **Roboto** en todo el sitio (landing, acceso y campus), sin cursivas: look de campus, compacto y minimalista. `SectionHeading` y `Section` son compactos.
+- Estructura: mucho aire, cards con línea fina y sin sombra, esquinas rectas (`rounded-sm`), punto de color como marca de estado. Un color de apoyo por nivel (`level-1`…`level-4`), usado con moderación.
 - Sin gradientes decorativos, glass, glow, emojis ni sombras. La numeración (`01`, `02`) solo donde el orden es real (pasos, módulos).
 - **Mobile-first y responsive sin excepción**: mobile, tablet y desktop.
 - Antes de generar o ajustar UI, leer `frontend-design`.

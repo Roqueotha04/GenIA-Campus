@@ -8,11 +8,9 @@ export default async function CampusLayout({ children }: Readonly<{ children: Re
 
   return (
     <CurrentProfileProvider profile={profile}>
-      <div className="theme-campus font-body">
-        <CampusHeader profile={profile} />
-        <main className="min-h-[70vh]">{children}</main>
-        <Footer variant="compact" />
-      </div>
+      <CampusHeader profile={profile} />
+      <main className="min-h-[70vh]">{children}</main>
+      <Footer />
     </CurrentProfileProvider>
   );
 }

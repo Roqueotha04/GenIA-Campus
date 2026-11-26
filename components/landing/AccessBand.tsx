@@ -5,15 +5,13 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function AccessBand() {
   return (
-    <Section density="editorial" className="surface-dark bg-navy-deep">
-      <Reveal className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+    <Section className="surface-dark bg-navy-deep">
+      <Reveal className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <SectionHeading
-          size="editorial"
           tone="onDark"
           title="Acceso al campus"
-          // accent="Con el usuario que te dio tu docente."
+          subtitle="Entrá para ver tus cursos, materiales y actividades."
         />
-        {/* <Button href="/acceso" variant="inverse"> */}
         <Button href="/campus" variant="inverse">
           Acceder al campus
         </Button>

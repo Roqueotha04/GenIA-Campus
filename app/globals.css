@@ -40,9 +40,8 @@
   --color-level-3: var(--level-3);
   --color-level-4: var(--level-4);
 
-  --font-heading: var(--font-heading-face);
-  --font-body: var(--font-body-face);
-  --font-accent: var(--font-accent-face);
+  --font-heading: var(--font-roboto);
+  --font-body: var(--font-roboto);
 }
 
 html {
@@ -57,13 +56,6 @@ body {
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 3px;
-}
-
-.theme-campus {
-  --font-heading-face: var(--font-roboto);
-  --font-body-face: var(--font-roboto);
-  --font-accent-face: var(--font-roboto);
-  font-family: var(--font-body-face);
 }
 
 .surface-dark {

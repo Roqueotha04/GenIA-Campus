@@ -1,5 +1,4 @@
-import { levels } from "@/data/levels";
-import type { Level } from "@/data/schemas";
+import { levelsWithFeaturedFirst } from "@/lib/catalog";
 import { levelAccentBackground } from "@/lib/level-accent";
 import { Accordion, type AccordionItem } from "@/components/ui/Accordion";
 import { Reveal } from "@/components/ui/Reveal";
@@ -11,13 +10,6 @@ import type { CourseSummary } from "@/lib/courses/course-access";
 import type { ModuleAvailability } from "@/lib/course-content/course-content-types";
 import { CampusBanner } from "./CampusBanner";
 import { LevelModuleList } from "./LevelModuleList";
-
-const FEATURED_LEVEL_SLUG = "adultos";
-
-const levelsWithFeaturedFirst: Level[] = [
-  ...levels.filter((level) => level.slug === FEATURED_LEVEL_SLUG),
-  ...levels.filter((level) => level.slug !== FEATURED_LEVEL_SLUG),
-];
 
 type AvailabilityByLevel = Record<string, Record<number, ModuleAvailability>>;
 
