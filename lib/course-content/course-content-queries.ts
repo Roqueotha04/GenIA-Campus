@@ -7,7 +7,7 @@ import type { CourseSummary } from "@/lib/courses/course-access";
 import {
   buildCourseSections,
   buildDueDatesByAssignment,
-  collectFilePaths,
+  collectDownloadableFiles,
   type AssignmentDueRow,
   type ResourceRow,
   type SectionRow,
@@ -51,7 +51,7 @@ export const getCourseSections = cache(
     const assignments: AssignmentDueRow[] = assignmentsResult.data ?? [];
     const signedUrls = await createSignedDownloadUrls(
       COURSE_MATERIALS_BUCKET,
-      collectFilePaths(resources),
+      collectDownloadableFiles(resources),
     );
 
     return buildCourseSections({

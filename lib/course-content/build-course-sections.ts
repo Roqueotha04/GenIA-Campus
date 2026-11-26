@@ -1,3 +1,4 @@
+import type { DownloadableFile } from "@/lib/storage/signed-downloads";
 import type { CourseSummary } from "@/lib/courses/course-access";
 import type { TableRow } from "@/types/database";
 import type { CourseResourceItem, CourseSectionContent } from "./course-content-types";
@@ -86,9 +87,11 @@ function toResourceItem(
   }
 }
 
-export function collectFilePaths(resources: ResourceRow[]): string[] {
+export function collectDownloadableFiles(resources: ResourceRow[]): DownloadableFile[] {
   return resources.flatMap((resource) =>
-    resource.kind === "file" && resource.storage_path ? [resource.storage_path] : [],
+    resource.kind === "file" && resource.storage_path
+      ? [{ path: resource.storage_path, displayName: resource.title }]
+      : [],
   );
 }
 

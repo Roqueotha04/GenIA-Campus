@@ -36,13 +36,19 @@ export async function findCourseAssignment(
 
 export async function findAttachmentUrl(assignment: AssignmentRecord): Promise<string | null> {
   if (!assignment.attachment_path) return null;
-  const urls = await createSignedDownloadUrls(COURSE_MATERIALS_BUCKET, [assignment.attachment_path]);
+  const urls = await createSignedDownloadUrls(COURSE_MATERIALS_BUCKET, [
+    { path: assignment.attachment_path, displayName: assignment.attachment_name ?? assignment.title },
+  ]);
   return urls.get(assignment.attachment_path) ?? null;
 }
 
 async function attachFileUrls(submissions: SubmissionRecord[]): Promise<SubmissionView[]> {
-  const filePaths = submissions.flatMap((submission) => (submission.file_path ? [submission.file_path] : []));
-  const urls = await createSignedDownloadUrls(SUBMISSIONS_BUCKET, filePaths);
+  const files = submissions.flatMap((submission) =>
+    submission.file_path
+      ? [{ path: submission.file_path, displayName: submission.file_name ?? "entrega" }]
+      : [],
+  );
+  const urls = await createSignedDownloadUrls(SUBMISSIONS_BUCKET, files);
   return submissions.map((submission) => ({
     ...submission,
     fileUrl: submission.file_path ? (urls.get(submission.file_path) ?? null) : null,
