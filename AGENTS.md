@@ -49,12 +49,12 @@ Las rutas (`app/`) **solo componen**: validan params, llaman a `notFound()` y re
 ```
 app/          page (landing) · acceso (login, recuperar, nueva-clave) · auth/confirm · campus/…
 components/   ui/ · layout/ · landing/ · auth/ · campus/ (estático) · course/ (alumno) · teacher/ (gestionar) · assignments/ · quizzes/ · admin/ · providers/
-data/         schemas.ts · levels.ts · games.ts · quiz-*-adultos.ts (estáticos)
-hooks/        useCurrentProfile · useCourseRealtime · useQuizResult · …
+data/         schemas.ts · levels.ts (estructura y contenido estático de niños) · games.ts
+hooks/        useCurrentProfile · useCourseRealtime · useElapsedSeconds
 lib/          supabase/ · auth/ · courses/ · course-content/ · teacher/ · assignments/ · quizzes/ · admin/ · storage/ · forms/ · catalog · quiz-scoring
 supabase/     migrations/ (esquema, RLS, storage, realtime)
 scripts/      create-admin.mts
-public/       logo · juegos/ (HTML) · material/ (contenido estático viejo)
+public/       logo · juegos/ (HTML)
 ```
 
 - Rutas: `/` landing · `/acceso` login · `/campus` mis cursos + niveles · `/campus/[nivel]` módulos · `/campus/[nivel]/[modulo]` curso (dinámico si existe en la base; si no, estático) · `…/gestionar` (docente/admin) · `…/gestionar/quizzes` · `…/entregas/[id]` · `…/quiz/[quizId]` · `…/juegos/[slug]` · `…/avisos` · `/campus/admin` (usuarios y cursos).

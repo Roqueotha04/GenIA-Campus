@@ -43,14 +43,6 @@ function listActivityResources(moduleHref: string, classes: CourseClass[]): Modu
   return classes.flatMap((courseClass) => {
     const classHref = `${moduleHref}/${courseClass.number}`;
     const resources: ModuleResource[] = [];
-    if (courseClass.activity) {
-      resources.push({
-        kind: "activity",
-        label: courseClass.activity.title,
-        href: `${classHref}/actividad`,
-        isDownload: false,
-      });
-    }
     if (courseClass.game) {
       resources.push({
         kind: "game",

@@ -65,7 +65,6 @@ export const courseClassSchema = z.object({
   presentationPdf: z.string().startsWith("/").optional(),
   summaryDocument: downloadSchema.optional(),
   assignments: z.array(downloadSchema).optional(),
-  activity: activitySchema.optional(),
   game: gameSchema.optional(),
 });
 
@@ -94,13 +93,6 @@ export const levelSchema = z.object({
   modules: z.array(courseModuleSchema).min(1),
 });
 
-export const sampleResultSchema = z.object({
-  studentName: z.string().min(1),
-  score: z.number().int().min(0),
-  total: z.number().int().min(1),
-  date: z.string().min(1),
-});
-
 export type Question = z.infer<typeof questionSchema>;
 export type Notice = z.infer<typeof noticeSchema>;
 export type Activity = z.infer<typeof activitySchema>;
@@ -110,4 +102,3 @@ export type CourseClass = z.infer<typeof courseClassSchema>;
 export type CourseModule = z.infer<typeof courseModuleSchema>;
 export type LevelAccent = z.infer<typeof levelAccentSchema>;
 export type Level = z.infer<typeof levelSchema>;
-export type SampleResult = z.infer<typeof sampleResultSchema>;
