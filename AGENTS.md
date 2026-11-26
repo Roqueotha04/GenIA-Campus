@@ -23,6 +23,7 @@ El clean code se prioriza **siempre**, por encima de la velocidad o la convenien
 - **Cursos** = nivel + módulo (`courses.level_slug` + `module_number`). Los crea el admin, les asigna docentes y los publica. El alumno se inscribe con la **clave del curso**.
 - **Contenido del curso** (secciones, archivos, links, juegos, entregas, avisos, cuestionarios) lo cargan docentes/admin desde `/campus/[nivel]/[modulo]/gestionar`. Los alumnos lo ven en vivo (Realtime).
 - Si un módulo no tiene curso en la base, se muestra el contenido estático de `data/levels.ts` (niveles de niños). No cargar contenido estático nuevo sin que lo pida el dueño.
+- **Acceso de invitado (temporal, hasta el jueves 3/12/2026 inclusive)**: sin sesión, `proxy.ts` entra automáticamente con la cuenta de invitado (`GUEST_EMAIL` / `GUEST_PASSWORD`), inscripta en los cursos de Adultos. El invitado ve todo pero no entrega TPs y sus cuestionarios no se guardan. La fecha de corte está en `lib/auth/guest-access.ts`; pasada esa fecha no hace nada. Para quitarlo: borrar `guest-access.ts` y sus usos (`isGuest`), las variables y la cuenta de invitado.
 - **Juegos HTML**: se cargan a mano en `public/juegos/` y se registran en `data/games.ts`; el docente los agrega a una sección.
 
 ## Supabase

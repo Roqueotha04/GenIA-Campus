@@ -12,10 +12,10 @@ interface QuizTakeViewProps {
   levelName: string;
   quizId: string;
   quiz: QuizForTaking;
-  isPreview: boolean;
+  previewNotice: string | null;
 }
 
-export function QuizTakeView({ course, levelName, quizId, quiz, isPreview }: QuizTakeViewProps) {
+export function QuizTakeView({ course, levelName, quizId, quiz, previewNotice }: QuizTakeViewProps) {
   const moduleHref = buildCourseHref(course);
 
   return (
@@ -41,7 +41,7 @@ export function QuizTakeView({ course, levelName, quizId, quiz, isPreview }: Qui
             passingScore={quiz.passingScore}
             questions={quiz.questions}
             initialReview={quiz.initialReview}
-            isPreview={isPreview}
+            previewNotice={previewNotice}
             moduleHref={moduleHref}
           />
         )}

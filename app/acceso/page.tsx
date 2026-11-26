@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Acceso" };
 
 export default async function AccessPage() {
   const profile = await getCurrentProfile();
-  if (profile) redirect(CAMPUS_PATH);
+  if (profile && !profile.isGuest) redirect(CAMPUS_PATH);
 
   return (
     <AuthLayout title="Acceder al campus" description="Ingresá con tu email y tu clave.">

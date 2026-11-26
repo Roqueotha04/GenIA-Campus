@@ -2,6 +2,7 @@ import "server-only";
 import { getCurrentProfile, type CurrentProfile } from "@/lib/auth/current-profile";
 import { COURSE_SUMMARY_COLUMNS, getCourseAccess, type CourseSummary } from "@/lib/courses/course-access";
 import { errorState, type FormState } from "@/lib/forms/form-state";
+import { GUEST_SUBMISSION_MESSAGE } from "./guest-submission";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import { authorizeCourse, type AuthorizedCourse, type SupabaseServerClient } from "@/lib/teacher/course-authorization";
 import { ASSIGNMENT_COLUMNS, type AssignmentRecord } from "./assignment-types";
@@ -56,6 +57,7 @@ export async function authorizeSubmissionCourse(submissionId: string) {
 export async function authorizeStudent(assignmentId: string): Promise<StudentAuthorization> {
   const profile = await getCurrentProfile();
   if (!profile) return { allowed: false, state: SESSION_EXPIRED };
+  if (profile.isGuest) return { allowed: false, state: errorState(GUEST_SUBMISSION_MESSAGE) };
 
   const supabase = await createSupabaseServerClient();
   const { data: assignment } = await supabase

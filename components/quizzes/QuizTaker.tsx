@@ -17,7 +17,7 @@ interface QuizTakerProps {
   passingScore: number;
   questions: PlayableQuestion[];
   initialReview: QuizReview | null;
-  isPreview: boolean;
+  previewNotice: string | null;
   moduleHref: string;
 }
 
@@ -28,7 +28,7 @@ export function QuizTaker({
   passingScore,
   questions,
   initialReview,
-  isPreview,
+  previewNotice,
   moduleHref,
 }: QuizTakerProps) {
   const [review, setReview] = useState(initialReview);
@@ -56,12 +56,7 @@ export function QuizTaker({
 
   return (
     <div className="space-y-8">
-      {isPreview && (
-        <FormAlert
-          tone="success"
-          message="Estás viendo el cuestionario como docente. Tus intentos no se guardan ni aparecen en los resultados."
-        />
-      )}
+      {previewNotice && <FormAlert tone="success" message={previewNotice} />}
       {isTaking ? (
         <Quiz questions={questions} onFinish={handleFinish} isFinishing={isPending} errorMessage={errorMessage} />
       ) : review ? (

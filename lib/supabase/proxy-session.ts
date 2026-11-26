@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/types/database";
+import { isGuestAccessOpen, readGuestCredentials } from "@/lib/auth/guest-access";
 import { supabasePublishableKey, supabaseUrl } from "./env";
 
 const PROTECTED_PREFIX = "/campus";
@@ -11,6 +12,13 @@ function redirectToLogin(request: NextRequest) {
   loginUrl.pathname = LOGIN_PATH;
   loginUrl.search = "";
   return NextResponse.redirect(loginUrl);
+}
+
+async function signInAsGuest(supabase: ReturnType<typeof createServerClient<Database>>) {
+  const credentials = readGuestCredentials();
+  if (!isGuestAccessOpen() || !credentials) return false;
+  const { error } = await supabase.auth.signInWithPassword(credentials);
+  return !error;
 }
 
 export async function refreshSession(request: NextRequest) {
@@ -34,7 +42,8 @@ export async function refreshSession(request: NextRequest) {
   const isSignedIn = Boolean(data?.claims);
 
   if (!isSignedIn && request.nextUrl.pathname.startsWith(PROTECTED_PREFIX)) {
-    return redirectToLogin(request);
+    const signedInAsGuest = await signInAsGuest(supabase);
+    if (!signedInAsGuest) return redirectToLogin(request);
   }
 
   return response;

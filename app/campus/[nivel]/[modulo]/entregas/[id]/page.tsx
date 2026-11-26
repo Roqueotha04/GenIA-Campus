@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AssignmentDetailView } from "@/components/assignments/AssignmentDetailView";
+import { GuestSubmissionNotice } from "@/components/assignments/GuestSubmissionNotice";
 import { StudentSubmissionPanel } from "@/components/assignments/StudentSubmissionPanel";
 import { TeacherSubmissionsPanel } from "@/components/assignments/TeacherSubmissionsPanel";
 import { requireProfile } from "@/lib/auth/current-profile";
@@ -44,6 +45,8 @@ export default async function AssignmentPage({ params }: AssignmentPageProps) {
     >
       {canManage ? (
         <TeacherSubmissionsPanel assignment={assignment} roster={await loadRoster(course.id, assignment.id)} />
+      ) : profile.isGuest ? (
+        <GuestSubmissionNotice />
       ) : (
         <StudentSubmissionPanel
           assignment={assignment}

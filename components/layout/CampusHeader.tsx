@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { signOut } from "@/lib/auth/auth-actions";
 import type { CurrentProfile } from "@/lib/auth/current-profile";
-import { roleLabels } from "@/lib/auth/roles";
+import { LOGIN_PATH, roleLabels } from "@/lib/auth/roles";
 
 const ADMIN_PANEL_PATH = "/campus/admin";
 
@@ -25,16 +26,24 @@ export function CampusHeader({ profile }: { profile: CurrentProfile }) {
           )}
           <div className="flex items-center gap-3 text-sm">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-cyan" />
-            <span className="hidden text-white/80 sm:inline">{profile.full_name}</span>
+            {!profile.isGuest && (
+              <span className="hidden text-white/80 sm:inline">{profile.full_name}</span>
+            )}
             <span className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-cyan">
-              {roleLabels[profile.role]}
+              {profile.isGuest ? "Invitado" : roleLabels[profile.role]}
             </span>
           </div>
-          <form action={signOut}>
-            <SubmitButton variant="outlineOnDark" size="sm" pendingLabel="Saliendo…">
-              Salir
-            </SubmitButton>
-          </form>
+          {profile.isGuest ? (
+            <Button href={LOGIN_PATH} variant="outlineOnDark" size="sm">
+              Ingresar
+            </Button>
+          ) : (
+            <form action={signOut}>
+              <SubmitButton variant="outlineOnDark" size="sm" pendingLabel="Saliendo…">
+                Salir
+              </SubmitButton>
+            </form>
+          )}
         </div>
       </div>
     </header>

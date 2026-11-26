@@ -3,9 +3,12 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server-client";
 import type { TableRow, UserRole } from "@/types/database";
+import { isGuestAccessOpen, isGuestEmail } from "./guest-access";
 import { CAMPUS_PATH, LOGIN_PATH } from "./roles";
 
-export type CurrentProfile = Pick<TableRow<"profiles">, "id" | "full_name" | "email" | "role">;
+export type CurrentProfile = Pick<TableRow<"profiles">, "id" | "full_name" | "email" | "role"> & {
+  isGuest: boolean;
+};
 
 export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> => {
   const supabase = await createSupabaseServerClient();
@@ -20,7 +23,17 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
     .maybeSingle();
 
   if (!profile || !profile.is_active) return null;
-  return { id: profile.id, full_name: profile.full_name, email: profile.email, role: profile.role };
+
+  const isGuest = isGuestEmail(profile.email);
+  if (isGuest && !isGuestAccessOpen()) return null;
+
+  return {
+    id: profile.id,
+    full_name: profile.full_name,
+    email: profile.email,
+    role: profile.role,
+    isGuest,
+  };
 });
 
 export async function requireProfile(): Promise<CurrentProfile> {

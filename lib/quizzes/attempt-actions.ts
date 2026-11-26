@@ -56,7 +56,7 @@ export async function submitQuizAttempt(quizId: string, answers: unknown): Promi
   const { score, total } = scoreAnswers(activity, validAnswers);
   const review = { questions, answers: validAnswers, passingScore: quiz.passing_score };
 
-  if (canManage) return { status: "preview", review };
+  if (canManage || profile.isGuest) return { status: "preview", review };
 
   const { error } = await createSupabaseAdminClient().from("quiz_attempts").insert({
     quiz_id: quiz.id,

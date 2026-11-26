@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { QuizTakeView } from "@/components/quizzes/QuizTakeView";
 import { requireProfile } from "@/lib/auth/current-profile";
+import { resolveQuizPreviewNotice } from "@/lib/quizzes/quiz-preview-notice";
 import { findLevel } from "@/lib/catalog";
 import { buildCourseHref, findCourseByModule, getCourseAccess } from "@/lib/courses/course-access";
 import { isQuizId } from "@/lib/quizzes/quiz-id";
@@ -38,7 +39,7 @@ export default async function QuizPage({ params }: QuizPageProps) {
       levelName={findLevel(nivel)?.name ?? nivel}
       quizId={quizId}
       quiz={quiz}
-      isPreview={canManage}
+      previewNotice={resolveQuizPreviewNotice({ canManage, isGuest: profile.isGuest })}
     />
   );
 }
